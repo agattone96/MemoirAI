@@ -21,6 +21,7 @@ import {
   PanelRightOpen,
   Search,
   Settings,
+  Shield,
   Sparkles,
   Star,
   Tag,
@@ -47,7 +48,8 @@ type NavKey =
   | "insights"
   | "studio"
   | "exports"
-  | "settings";
+  | "settings"
+  | "security";
 
 type Memory = {
   id: string;
@@ -81,6 +83,7 @@ const NAV: { key: NavKey; label: string; icon: any }[] = [
   { key: "studio", label: "Studio", icon: Sparkles },
   { key: "exports", label: "Exports", icon: Layers },
   { key: "settings", label: "Settings", icon: Settings },
+  { key: "security", label: "Security", icon: Shield },
 ];
 
 const MOCK_MEMORIES: Memory[] = [
