@@ -1,0 +1,319 @@
+
+# 1) Design DNA
+
+## Vibe
+
+* **Cinematic dark**, premium, high-contrast, “archive vault” energy
+* Bold and inviting, not sterile
+* Ethically “pleasing” = transparent UI, clear provenance, no sneaky dark patterns, obvious export/delete controls
+
+## Core motifs
+
+* **Glass + ink**: translucent surfaces over deep black-indigo
+* **Orbit/halo accents**: gradient rings used sparingly for focus states and hero moments
+* **Thread + timeline**: faint vertical rules, timestamp chips, cluster connectors
+* **Sigils (minimal)**: geometric glyphs for sections (People, Tags, Imports, Studio) without turning into Hot Topic UI
+
+---
+
+# 2) Color System
+
+## Base Neutrals (Dark-first)
+
+* **Bg / Void**: `#07070B`
+* **Surface 1**: `#0D0E16`
+* **Surface 2**: `#121326`
+* **Surface 3**: `#17183A`
+* **Border / Hairline**: `rgba(255,255,255,0.10)`
+* **Divider**: `rgba(255,255,255,0.06)`
+
+## Text
+
+* **Primary**: `rgba(255,255,255,0.92)`
+* **Secondary**: `rgba(255,255,255,0.72)`
+* **Muted**: `rgba(255,255,255,0.52)`
+* **Disabled**: `rgba(255,255,255,0.35)`
+
+## Brand Accent Gradient (reserved for “meaningful moments”)
+
+* **Cyan**: `#35D3FF`
+* **Violet**: `#7C4DFF`
+* **Magenta**: `#FF3DBD`
+* Gradient: `linear-gradient(90deg, #35D3FF 0%, #7C4DFF 50%, #FF3DBD 100%)`
+
+## Primary Interaction (buttons, toggles, CTA)
+
+* **Ember Orange**: `#FF6B2C`
+* Hover: `#FF814D`
+* Pressed: `#E85A22`
+* Focus ring: `rgba(255,107,44,0.45)`
+
+## Semantic Colors
+
+* **Success**: `#2EE59D`
+* **Warning**: `#FFC247`
+* **Error**: `#FF4D5A`
+* **Info**: `#35D3FF`
+
+## Tag Colors (small, consistent set)
+
+* Tag 1: `#35D3FF`
+* Tag 2: `#7C4DFF`
+* Tag 3: `#FF3DBD`
+* Tag 4: `#2EE59D`
+* Tag 5: `#FFC247`
+
+**Rule:** tags are color chips, not full background washes. No rainbow vomit.
+
+---
+
+# 3) Typography
+
+## Font stack (pick one primary)
+
+### Option A (best): **Geist**
+
+* Headings: Geist Sans
+* Body: Geist Sans
+* Mono: Geist Mono
+
+### Option B (easy default): **Inter**
+
+* Headings: Inter
+* Body: Inter
+* Mono: JetBrains Mono
+
+## Type scale
+
+* **H1 / Screen title**: 28–32px / 700 / tight
+* **H2 / Section**: 18–20px / 650
+* **Body**: 14–15px / 450–500
+* **Small**: 12–13px / 450
+* **Micro**: 11px / 500 (chips, timestamps)
+
+## Copy behavior
+
+* Dates + metadata: small, muted, mono optional
+* Titles: sharp, high contrast, no excessive letter spacing
+
+---
+
+# 4) Iconography & Illustration
+
+## Icons
+
+* **Lucide** style line icons (consistent stroke)
+* Default stroke: 1.75px
+* Use filled icons only for selected nav item (optional)
+
+## Images & Background motifs
+
+* **Library empty state**: subtle abstract “constellation grid” SVG
+* **Timeline background**: faint vertical rule + dots every ~80px
+* **Studio**: a soft blurred “orb” gradient in header only (never behind body text)
+
+## Avatars / People
+
+* Monogram circles by default
+* Optional imported photos, framed with subtle border + shadow
+
+---
+
+# 5) Layout & Spacing
+
+## Grid
+
+* Sidebar: 280px (collapsed 72px)
+* Right inspector: 360–420px (collapsible)
+* Main content: max 1200px readable column inside center
+
+## Spacing tokens
+
+* 4 / 8 / 12 / 16 / 24 / 32 / 48
+
+## Radii
+
+* Card: 16px
+* Button: 12px
+* Chips: 999px (pill)
+* Inputs: 12px
+
+## Shadows
+
+* Soft, layered:
+
+  * `0 10px 30px rgba(0,0,0,0.55)`
+  * Inner hairline highlight: `inset 0 1px 0 rgba(255,255,255,0.06)`
+
+---
+
+# 6) Core Components (spec)
+
+## Buttons
+
+### Primary (CTA)
+
+* Fill: `#FF6B2C`
+* Text: near-white
+* Radius: 12px
+* Height: 44px
+* Icon-left optional
+* Hover: brighter fill + slightly raised shadow
+* Pressed: darker fill + reduced shadow
+
+### Secondary
+
+* Background: `rgba(255,255,255,0.06)`
+* Border: `rgba(255,255,255,0.10)`
+* Hover: `rgba(255,255,255,0.10)`
+
+### Tertiary / Ghost
+
+* No fill
+* Text: secondary
+* Hover: subtle surface wash
+
+### Destructive
+
+* Fill: `#FF4D5A`
+* Hover: slightly brighter
+
+---
+
+## Inputs
+
+### Text input / search
+
+* Background: Surface 2
+* Border: hairline
+* Focus: orange focus ring + border brighten
+* Leading icon for search
+* Clear “x” affordance always visible on hover/focus
+
+### Dropdowns
+
+* Same as input
+* Menu surfaces: Surface 2
+* Selected item indicator: orange dot or left bar
+
+### Toggles
+
+* Off: muted gray
+* On: orange
+* Focus ring: orange
+
+---
+
+## Chips & Badges
+
+* **Date chip**: Surface 3 + muted text
+* **Source badge**: outlined pill, icon + label
+* **Tag chip**: small color dot + name (never full solid bright fill)
+* **Status badge**:
+
+  * success/warn/error colors
+  * always includes text label, not color-only
+
+---
+
+## Cards
+
+### Memory card
+
+* Title + snippet + metadata row
+* Left edge: 2px accent bar (orange only for pinned/selected)
+* Hover: lift + border brighten
+* Selected: border + subtle gradient ring
+
+### Import job card
+
+* Progress bar
+* Step list: parse → normalize → index → entity extract
+* Errors as expandable rows
+
+---
+
+## Timeline cluster
+
+* Date headers (sticky)
+* “Thread connector” line down the left
+* Cluster pills for message runs
+* Expand/collapse cluster
+* “Jump to original” action visible
+
+---
+
+## Right Inspector Panel
+
+* Tabs: Details | AI | Links | History
+* “Provenance” block always present:
+
+  * source file
+  * import date
+  * transformations applied
+* Actions: edit, merge, export, delete
+
+---
+
+# 7) Animations (minimal, premium)
+
+* 120–180ms ease-out transitions
+* Hover lift: 2–4px translate
+* Focus ring fade-in
+* Loading: thin shimmer on skeletons (no spinner circus)
+
+---
+
+# 8) Page-Specific Visual Treatments
+
+## Dashboard
+
+* Hero header with faint gradient orb top-right
+* “Quick Actions” cards with icon + one-liner
+* Insights preview as small charts on Surface 2
+
+## Timeline
+
+* Most restrained screen
+* Background rule/dots
+* Card density toggle (compact/cozy)
+
+## Studio
+
+* Slightly more cinematic
+* Source citations in mono + bordered blocks
+* Output drafts in a readable column, “manuscript” feel
+
+## Imports
+
+* More utilitarian
+* Stepper UI
+* Clear error affordances
+
+## Settings
+
+* Plain, high readability
+* “Export/Delete” dangerous actions visually separated
+
+---
+
+# 9) Component Inventory (quick list)
+
+* AppShell (sidebar/topbar/inspector)
+* NavItem (default/active/collapsed)
+* SearchBar (global)
+* FilterBar (chips + dropdowns)
+* Card (base), MemoryCard, ImportCard
+* TimelineCluster, DateHeader (sticky)
+* InspectorPanel (tabs)
+* Buttons (primary/secondary/ghost/destructive)
+* Inputs (text/textarea/search)
+* Dropdown, MultiSelect
+* Toggle, Checkbox, Radio
+* Badge, Chip, TagChip
+* ProgressBar, Stepper
+* Toast, Modal, Drawer
+* Tooltip
+* Skeleton loaders
+* EmptyState (illustration + CTA)
+* ErrorState (retry/repair actions)

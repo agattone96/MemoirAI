@@ -1,0 +1,520 @@
+
+# 1) Component Map (Library)
+
+## A. App Shell
+
+### `AppShell`
+
+**What it is:** Root layout container.
+**Contains:** `SidebarNav`, `TopBar`, `MainStage`, `RightInspector`, `Toasts`, `Modals`.
+**Rules**
+
+* Sidebar and TopBar are always mounted.
+* RightInspector is mounted but collapsible.
+* MainStage scroll is independent from Sidebar scroll.
+
+### `SidebarNav`
+
+**What it does:** Primary navigation + library switcher.
+**Elements**
+
+* Library picker (top)
+* Nav list
+* Status chips (indexing/sync/import)
+* Collapse toggle
+  **States**
+* Expanded / Collapsed
+* Active item highlighted
+* Status chips: idle / working / warning / error
+  **Interactions**
+* Cmd+K search can navigate
+* Collapse preserves tooltips for icons
+
+### `TopBar`
+
+**What it does:** Global search + contextual actions.
+**Elements**
+
+* `SearchBar`
+* `FilterBar` (contextual)
+* Primary CTA button (contextual)
+* Command palette trigger
+  **States**
+* Normal / Search-focused / Bulk-selection mode
+
+### `RightInspector`
+
+**What it does:** Detail + actions for the selected entity.
+**Tabs**
+
+* Details | AI | Links | History
+  **Rules**
+* Selection-driven. No selection = shows “Nothing selected.”
+* Never blocks MainStage actions.
+  **Common blocks**
+* Provenance (always)
+* Metadata editor
+* Action buttons
+* Version history (if available)
+
+---
+
+## B. Inputs & Controls
+
+### `SearchBar`
+
+**What it does:** Full-text + operators + suggestions.
+**Behavior**
+
+* Typing shows live suggestions (people/tags/operators)
+* Enter runs search in current context (Timeline/Search screens) or opens Search screen from elsewhere
+* Clear button appears on focus/has text
+  **States**
+* Idle / Focus / Loading / Error (index not ready)
+
+### `FilterBar`
+
+**What it does:** Chip-based filters + “more filters” drawer.
+**Components**
+
+* Filter chips (date, person, tag, source, type)
+* “Add filter” dropdown
+* “Reset” action (only when active)
+  **Rules**
+* Filters are visible + removable as chips
+* Advanced filters open a drawer, not a modal
+
+### `Button`
+
+**Variants**
+
+* Primary / Secondary / Ghost / Destructive
+  **States**
+* Default / Hover / Pressed / Disabled / Loading
+  **Rules**
+* Loading replaces icon with spinner and locks repeat clicks
+* Destructive requires confirmation pattern (inline confirm)
+
+### `Dropdown`
+
+**What it does:** Select with keyboard navigation.
+**Rules**
+
+* Typeahead inside menu
+* Esc closes, Enter selects
+
+### `MultiSelect`
+
+**Used for:** People, tags.
+**Rules**
+
+* Creates chips on selection
+* Backspace removes last chip if input empty
+
+### `Toggle`
+
+**Used for:** Settings, “Include in AI,” sync toggles.
+**Rules**
+
+* Must show label + helper text (no mystery switches)
+
+---
+
+## C. Display & Data Components
+
+### `Card`
+
+**Base container** for items.
+**States**
+
+* Normal / Hover / Selected / Disabled
+  **Rules**
+* Selected state reflects current selection driving RightInspector
+
+### `MemoryCard`
+
+**What it shows**
+
+* Title/snippet
+* Date chip
+* Source badge(s)
+* Tag chips
+* Attachment indicators
+  **Interactions**
+* Click selects (opens in inspector)
+* Double click opens full `MemoryDetail`
+* Context menu: pin, export, delete, merge
+
+### `TimelineCluster`
+
+**What it does:** Groups items by time/thread.
+**Elements**
+
+* Cluster header (time range + count)
+* Expand/collapse
+* Inline “view all” or “split cluster”
+  **Rules**
+* Collapsed shows top 2–3 preview lines/items
+* Expand keeps scroll position stable
+
+### `DateHeaderSticky`
+
+**What it does:** Anchor and labels timeline segments.
+**Rules**
+
+* Sticky while its section is in view
+* Includes quick jump actions (day summary, export slice)
+
+### `MediaCarousel`
+
+**What it does:** Displays attachments (images, audio, files).
+**Rules**
+
+* Shows thumbnails row + focused preview
+* Keyboard arrows navigate
+* “Open original” always available
+
+### `ProvenanceBlock`
+
+**What it shows**
+
+* Source file/origin
+* Import timestamp
+* Transform steps applied
+* Confidence score (if inferred)
+  **Rules**
+* Always visible on detail views
+* “View raw record” available but gated (read-only)
+
+### `InlineEditor`
+
+**What it does:** Click-to-edit for titles, notes, summaries.
+**Rules**
+
+* Enter saves, Esc cancels
+* Autosave after idle (configurable)
+* Shows “Edited” in `HistoryTab`
+
+### `VersionHistory`
+
+**What it does:** Diff + restore.
+**Rules**
+
+* AI outputs always versioned
+* Restore requires confirm and logs event
+
+---
+
+## D. System Feedback
+
+### `Toast`
+
+* Success/info/warn/error with optional action
+* Never blocks UI
+
+### `Modal`
+
+**Used for**
+
+* Destructive confirmation
+* Export configuration
+* Merge/split flows (only if complex)
+  **Rules**
+* Escape closes (except irreversible confirms)
+* Focus trap for accessibility
+
+### `Drawer`
+
+**Used for**
+
+* Advanced filters
+* Bulk actions
+* Import mapping help
+  **Rules**
+* Doesn’t break context like a modal
+
+### `SkeletonLoader`
+
+**Used for**
+
+* Timeline loading
+* Search results loading
+* Import job loading
+
+---
+
+# 2) Screen-by-Screen: What Components Appear + How They Work
+
+## 2.1 Auth
+
+**Components**
+
+* `AuthForm` (inputs + buttons)
+* `Toast` for errors
+  **Behavior**
+* Form validation inline
+* Errors show toast + field highlight
+
+---
+
+## 2.2 Onboarding
+
+### Welcome
+
+* `Card` panels for intent selection
+* Primary `Button` continues
+
+### Create/Select Library
+
+* `LibraryPicker` (dropdown + create)
+* `StorageModeSelector` (cards)
+* `Toggle` defaults (timezone, AI settings)
+
+### First Import Prompt
+
+* `EmptyState` illustration + CTA
+* `ImportSourceGrid` (cards)
+
+---
+
+## 2.3 Dashboard
+
+**Components**
+
+* AppShell set: `SidebarNav`, `TopBar`, `RightInspector`
+* `RecentMemoriesGrid` (MemoryCard)
+* `ImportStatusList` (ImportCard)
+* `QuickActionCards`
+* `InsightsPreviewCharts`
+  **Behavior**
+* Clicking memory selects it (inspector shows details)
+* Clicking “New” opens `NewMemoryModal`
+* Import cards open Import Job detail screen
+
+---
+
+## 2.4 Timeline
+
+**Components**
+
+* `SearchBar` + `FilterBar` in TopBar
+* `DateHeaderSticky`
+* `TimelineCluster`
+* `MemoryCard`
+* `BulkSelectToolbar` (appears when multi-select)
+  **Behavior**
+* Scroll is the main interaction
+* Clicking a MemoryCard updates RightInspector immediately
+* Cluster expand/collapse is instant, no route change
+* Bulk mode enables: tag, export, delete, merge candidates
+
+---
+
+## 2.5 Memory Detail
+
+**Components**
+
+* `MemoryHeader` (title, date, chips)
+* `MediaCarousel`
+* `InlineEditor`
+* `AIOutputPanel` (summary + regenerate)
+* `MetadataEditor` (people/tags/location)
+* `ProvenanceBlock`
+* `VersionHistory`
+  **Behavior**
+* Title and notes are inline editable
+* AI summary has “Regenerate with constraints” (opens drawer)
+* Merge/split actions open modal
+* Provenance is read-only but expandable
+
+---
+
+## 2.6 Search (Dedicated)
+
+**Components**
+
+* `SearchBar` (primary)
+* `ResultsList` (MemoryCard-like rows)
+* `FilterBar`
+* `SavedSearches` (left column or drawer)
+  **Behavior**
+* Query updates results with debounce
+* Keyboard navigation: up/down, enter to open detail
+* “Save search” stores query + filters
+
+---
+
+## 2.7 People
+
+### People Index
+
+**Components**
+
+* `PeopleGrid` (avatar chips + counts)
+* `MergeDuplicatesTool` (button + modal)
+  **Behavior**
+* Clicking a person navigates to Person Detail and sets filters contextually
+
+### Person Detail
+
+**Components**
+
+* `PersonHeader` (name, aliases)
+* `AliasEditor` (MultiSelect-like)
+* `PersonTimelineSlice` (TimelineCluster in filtered mode)
+* `CoOccurrencePanel` (related tags/people)
+* `NotesPanel` (InlineEditor)
+  **Behavior**
+* Adding alias triggers merge suggestions
+* Person timeline is just Timeline filtered to that person
+
+---
+
+## 2.8 Tags
+
+### Tag Index
+
+**Components**
+
+* `TagList` with counts and color dots
+* `TagSearchInput`
+  **Behavior**
+* Clicking a tag opens Tag Detail with timeline filtered
+
+### Tag Detail
+
+**Components**
+
+* `TagHeader`
+* `RuleBuilder` (optional) for auto-tagging
+* `RelatedTagsPanel`
+* `TaggedMemoriesList`
+  **Behavior**
+* RuleBuilder writes matching rules and shows live preview count
+
+---
+
+## 2.9 Imports
+
+### Import Hub
+
+**Components**
+
+* `ImportSourceCards`
+* `ImportJobsTable`
+* `ErrorBanner` (if failures)
+  **Behavior**
+* Start import launches wizard
+* Clicking job opens Job Detail
+
+### Import Wizard
+
+**Components**
+
+* `Stepper`
+* `FilePicker`
+* `SchemaMapper` (for CSV)
+* `PreviewTable`
+* `ConfirmImportPanel`
+  **Behavior**
+* Mapper supports drag-and-drop field binding
+* Preview updates after mapping
+* Confirm creates job and redirects to Job Detail
+
+### Import Job Detail
+
+**Components**
+
+* `JobProgressTimeline`
+* `LogsPanel`
+* `ErrorList` (expandable)
+* `RetryStepButtons`
+  **Behavior**
+* Steps can be re-run without re-uploading (if source still available)
+* Errors suggest fixes and link back to mapping
+
+---
+
+## 2.10 Insights
+
+**Components**
+
+* `ChartCards` (volume, tags, people)
+* `TimeRangeSelector`
+* `DrilldownLink` to Timeline slice
+  **Behavior**
+* Clicking a chart segment applies filters and jumps to Timeline
+* Export insights generates report job
+
+---
+
+## 2.11 Studio (Writing)
+
+**Components**
+
+* `SourceCitationPane`
+* `DraftEditor` (rich or markdown)
+* `ConstraintDrawer` (tone, length, audience)
+* `VersionHistory`
+* `ExportButton`
+  **Behavior**
+* Generated text always displays citations
+* Regeneration never overwrites without creating a new version
+* User edits create their own version lineage
+
+---
+
+## 2.12 Exports
+
+**Components**
+
+* `ExportTypeCards`
+* `ExportConfiguratorModal`
+* `ExportJobsList`
+  **Behavior**
+* Exports run async with progress
+* Completed exports appear with “open/download” actions and history
+
+---
+
+## 2.13 Settings
+
+**Components**
+
+* `SettingsNav` (subsections)
+* `Toggle`, `Dropdown`, `InlineHelp`
+* `DangerZonePanel` (export all, delete, reset)
+  **Behavior**
+* Changes autosave with visible confirmation
+* Dangerous actions require typed confirmation
+
+---
+
+# 3) Cross-Screen Interaction Rules (the glue)
+
+## Selection model
+
+* **Single click selects** (inspector updates)
+* **Double click opens detail route**
+* **Cmd/Ctrl click multi-select** (bulk toolbar appears)
+
+## Navigation model
+
+* Sidebar changes route
+* Filters persist within a “context” (Timeline/Search/People/Tags) but don’t pollute Settings/Imports unless explicitly pinned
+
+## Provenance model
+
+* Every data-derived object has `ProvenanceBlock`
+* “AI outputs” always show:
+
+  * input scope
+  * generation settings
+  * time generated
+  * version lineage
+
+## Error model
+
+* Inline error for local form issues
+* Toast for system events
+* Banner for major job failures (imports/indexing)

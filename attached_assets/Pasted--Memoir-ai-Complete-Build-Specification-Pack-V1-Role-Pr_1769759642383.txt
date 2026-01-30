@@ -1,0 +1,557 @@
+
+
+# Memoir.ai: Complete Build Specification Pack (V1)
+
+**Role:** Principal Product Architect + Full-Stack Lead
+**Goal:** Generate a complete build spec pack for Memoir.ai (Electron + React + Supabase + Stripe).
+**Constraints:** Job-based imports, provenance visible, AI outputs versioned and cited, RLS enforced everywhere, cloud workspace via Supabase, Stripe-based subscriptions and usage limits.
+
+---
+
+## 1. Product Requirements Document (PRD) (V1 Locked)
+
+*(This section directly incorporates the Product Vision V1 document you provided, as it serves as the locked PRD.)*
+
+**(See previous user input for the full PRD. Key takeaways for development:** Unified timeline, search, AI snapshots with citations/versioning, single-format import, Electron + React desktop-first, Supabase backend, Stripe billing assumption.)
+
+---
+
+## 2. User Flows (High-Level)
+
+**2.1. Onboarding & Library Creation**
+1.  **User Registration/Login:** App launch -> Sign up (email/password, social SSO) / Login.
+2.  **Initial Library Setup:** First-time user -> Prompt to create first "Library" -> Name Library -> Confirm.
+3.  **Dashboard/Library Select:** Subsequent logins -> Display list of existing Libraries -> Select Library to enter.
+
+**2.2. Data Import**
+1.  **Initiate Import:** From Library workspace -> Click "Import Data" -> Select source (V1: "Messages Export").
+2.  **Upload & Configure:** Follow wizard -> Upload export file (CSV/JSON) -> Preview/confirm parsing options (if any) -> Confirm.
+3.  **Job Monitoring:** Import job initiated -> User redirected to "Jobs" or "Activity" view -> Monitor progress (status: pending, running, complete, failed) -> View detailed logs/errors.
+
+**2.3. Timeline Browsing & Search**
+1.  **View Timeline:** Land on Library workspace -> Chronological display of "Memories."
+2.  **Filter Timeline:** Apply date range filter / source filter / person filter.
+3.  **Search Memories:** Enter keywords in search bar -> Real-time search results display on timeline/list -> Navigate results.
+4.  **View Memory Details:** Click on a "Memory" -> Display full content, metadata, source.
+
+**2.4. AI Snapshot Generation**
+1.  **Select Data:** On timeline, select a time range or specific conversation thread/memories.
+2.  **Initiate Snapshot:** Click "Generate AI Snapshot" -> Confirm scope.
+3.  **Snapshot Review & Save:** AI generates snapshot text -> Display snapshot with inline citations -> User can edit/rename -> "Save Snapshot" (creates new version).
+4.  **View Snapshot History:** From a snapshot -> View previous versions.
+
+**2.5. Data Export & Deletion**
+1.  **Export Library:** From Library settings -> "Export Library Data" -> Select formats (V1: raw import + generated snapshots) -> Initiate export job -> Download link when complete.
+2.  **Delete Source Data:** From Library settings -> "Delete Source Data" -> Confirmation (multi-step, irreversible warning).
+3.  **Delete Library:** From Library selection -> "Delete Library" -> Confirmation (multi-step, irreversible warning).
+
+---
+
+## 3. Route Map (Frontend & Backend)
+
+**3.1. Frontend Routes (Electron/React)**
+*   `/` - Splash screen / Initial redirect
+*   `/auth/login` - Login/Registration
+*   `/auth/forgot-password`
+*   `/libraries` - Library selection/creation dashboard
+*   `/libraries/:libraryId` - Main Library workspace (timeline, search, snapshots)
+    *   `/libraries/:libraryId/import` - Import wizard
+    *   `/libraries/:libraryId/jobs` - Job monitoring
+    *   `/libraries/:libraryId/snapshots/:snapshotId` - Specific snapshot view/editor
+    *   `/libraries/:libraryId/settings` - Library-specific settings (export, delete)
+*   `/account/profile` - User profile/billing
+*   `/settings` - Application-wide settings
+
+**3.2. Backend Routes (Supabase Edge Functions / API Gateway)**
+*(Assuming Supabase exposes most direct DB interaction via RLS; Edge Functions for complex logic, AI, jobs, Stripe webhooks)*
+
+*   **Auth (handled by Supabase Auth):**
+    *   `/auth/signup`
+    *   `/auth/login`
+    *   `/auth/logout`
+    *   `/auth/recover`
+    *   `/auth/confirm`
+*   **Libraries:**
+    *   `POST /libraries` - Create new library
+    *   `GET /libraries` - Get all user's libraries
+    *   `GET /libraries/:id` - Get specific library details
+    *   `PATCH /libraries/:id` - Update library
+    *   `DELETE /libraries/:id` - Delete library
+*   **Imports:**
+    *   `POST /libraries/:id/imports` - Initiate import job (takes signed storage URL)
+    *   `GET /libraries/:id/imports/:jobId` - Get import job status/logs
+*   **Memories:**
+    *   `GET /libraries/:id/memories` - Get memories for timeline (with filters: date, source, person, search_query)
+    *   `GET /libraries/:id/memories/:memoryId` - Get single memory details
+*   **Snapshots:**
+    *   `POST /libraries/:id/snapshots` - Create new AI snapshot (takes selected memory IDs/time range)
+    *   `GET /libraries/:id/snapshots` - Get all snapshots for a library
+    *   `GET /libraries/:id/snapshots/:snapshotId` - Get specific snapshot (latest version)
+    *   `GET /libraries/:id/snapshots/:snapshotId/versions` - Get all versions of a snapshot
+    *   `GET /libraries/:id/snapshots/:snapshotId/versions/:versionId` - Get specific snapshot version
+    *   `PATCH /libraries/:id/snapshots/:snapshotId` - Update snapshot (creates new version)
+    *   `DELETE /libraries/:id/snapshots/:snapshotId` - Delete snapshot
+*   **Jobs:**
+    *   `GET /libraries/:id/jobs` - Get all jobs for a library
+    *   `GET /libraries/:id/jobs/:jobId` - Get specific job details/logs
+*   **Stripe Webhooks (Edge Function):**
+    *   `POST /webhooks/stripe` - Handle subscription updates, payments, etc.
+
+---
+
+## 4. UI Design System Tokens + Component Specs
+
+**4.1. Design Tokens**
+*   **Colors:**
+    *   Primary: `--color-primary-500` (e.g., `#6200EE`)
+    *   Accent: `--color-accent-500` (e.g., `#03DAC6`)
+    *   Text: `--color-text-default`, `--color-text-light`, `--color-text-inverted`
+    *   Background: `--color-bg-app`, `--color-bg-card`, `--color-bg-sidebar`
+    *   Semantic: `--color-success`, `--color-warning`, `--color-error`
+*   **Typography:**
+    *   Fonts: `--font-family-sans`, `--font-family-serif` (if applicable)
+    *   Sizes: `--font-size-xs` to `--font-size-xl` (`12px`, `14px`, `16px`, `18px`, `24px`, etc.)
+    *   Weights: `--font-weight-light`, `--font-weight-normal`, `--font-weight-bold`
+    *   Line Heights: `--line-height-body`, `--line-height-heading`
+*   **Spacing:** `--spacing-xxs` to `--spacing-xl` (`4px`, `8px`, `16px`, `24px`, `32px`, `48px`, etc.)
+*   **Border Radius:** `--border-radius-sm`, `--border-radius-md`, `--border-radius-lg`
+*   **Shadows:** `--shadow-z1`, `--shadow-z2` (for cards, modals)
+
+**4.2. Key Component Specifications (React)**
+
+*   **`Button`**: `variant` (primary, secondary, ghost, danger), `size` (sm, md, lg), `loading` state, `disabled` state.
+*   **`Input`**: `type` (text, email, password, number), `label`, `placeholder`, `error` state, `disabled` state.
+*   **`TimelineItem`**: Displays a single "Memory." Includes `timestamp`, `source icon`, `title/snippet`, `link to full detail`.
+*   **`TimelineGroup`**: Groups `TimelineItem`s (e.g., by day).
+*   **`Modal`**: `title`, `children`, `onClose`, `isOpen`, `size`.
+*   **`Sidebar`**: `width`, `content`, `toggleVisibility`.
+*   **`Table`**: Displays structured data (e.g., job logs). `columns`, `data`, `loading` state, `pagination`.
+*   **`Dropdown` / `Select`**: For filters and actions.
+*   **`CitationComponent`**: Renders a clickable citation. On click, highlights or scrolls to the original source `Memory`.
+*   **`LoadingSpinner` / `ProgressBar`**: For asynchronous operations.
+*   **`ToastNotification`**: For user feedback (success, error, info).
+
+---
+
+## 5. Canonical DB Schema (Supabase Postgres SQL)
+
+```sql
+-- schemas
+CREATE SCHEMA IF NOT EXISTS app_public;
+CREATE SCHEMA IF NOT EXISTS app_private; -- For private functions/data not directly exposed
+
+-- Users (handled by Supabase Auth, but can extend with public profile)
+-- Supabase handles 'auth.users' table.
+
+-- Libraries (Workspaces)
+CREATE TABLE app_public.libraries (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CONSTRAINT unique_user_library_name UNIQUE (user_id, name) -- Ensure user can't have two libraries with the same name
+);
+COMMENT ON TABLE app_public.libraries IS 'User workspaces for organizing memories.';
+
+-- Import Jobs
+CREATE TYPE app_public.job_status AS ENUM ('pending', 'running', 'complete', 'failed', 'cancelled');
+CREATE TABLE app_public.import_jobs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    library_id UUID NOT NULL REFERENCES app_public.libraries(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    source_type TEXT NOT NULL, -- e.g., 'facebook_messenger_json', 'twitter_archive_csv'
+    status app_public.job_status NOT NULL DEFAULT 'pending',
+    progress_percentage DECIMAL(5,2) DEFAULT 0.0,
+    started_at TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    error_message TEXT,
+    log_output JSONB, -- Store structured job logs
+    file_path TEXT, -- Path to original uploaded file in storage bucket
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+COMMENT ON TABLE app_public.import_jobs IS 'Tracks data import operations.';
+
+-- Memories (Normalized, canonical representation of imported data)
+CREATE TABLE app_public.memories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    library_id UUID NOT NULL REFERENCES app_public.libraries(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    original_id TEXT, -- Original ID from source (e.g., message_id)
+    source_type TEXT NOT NULL, -- e.g., 'facebook_messenger'
+    source_uri TEXT, -- URI to original item if applicable (e.g., post URL)
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+    content TEXT NOT NULL, -- Normalized content
+    metadata JSONB, -- Original metadata from source, plus normalized fields like 'sender_name', 'receiver_name', 'participants'
+    embedding VECTOR(1536), -- Optional: For future semantic search, assume OpenAI embeddings
+    import_job_id UUID REFERENCES app_public.import_jobs(id) ON DELETE SET NULL, -- Link to the job that created it
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_memories_library_id_timestamp ON app_public.memories (library_id, timestamp DESC);
+CREATE INDEX idx_memories_library_id_user_id ON app_public.memories (library_id, user_id); -- For RLS
+COMMENT ON TABLE app_public.memories IS 'Canonical, normalized representation of imported digital life data.';
+
+-- AI Snapshots (Summaries)
+CREATE TABLE app_public.ai_snapshots (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    library_id UUID NOT NULL REFERENCES app_public.libraries(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+COMMENT ON TABLE app_public.ai_snapshots IS 'High-level metadata for AI-generated summaries.';
+
+-- AI Snapshot Versions (For non-destructive editing and history)
+CREATE TABLE app_public.ai_snapshot_versions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    snapshot_id UUID NOT NULL REFERENCES app_public.ai_snapshots(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE, -- Creator of this version
+    content TEXT NOT NULL, -- The actual summary text
+    version_number INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    CONSTRAINT unique_snapshot_version UNIQUE (snapshot_id, version_number)
+);
+COMMENT ON TABLE app_public.ai_snapshot_versions IS 'Stores different versions of AI-generated summaries.';
+
+-- Snapshot Citations (Provenance)
+CREATE TABLE app_public.snapshot_citations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    snapshot_version_id UUID NOT NULL REFERENCES app_public.ai_snapshot_versions(id) ON DELETE CASCADE,
+    memory_id UUID NOT NULL REFERENCES app_public.memories(id) ON DELETE CASCADE,
+    citation_text TEXT, -- Optional: Specific text snippet from memory used
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+CREATE INDEX idx_citations_snapshot_version_id ON app_public.snapshot_citations (snapshot_version_id);
+COMMENT ON TABLE app_public.snapshot_citations IS 'Links AI snapshot versions to their originating memories.';
+
+-- Billing (Simplified for V1, assuming Stripe manages subscriptions)
+CREATE TABLE app_public.customers (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    stripe_customer_id TEXT UNIQUE NOT NULL,
+    current_plan TEXT, -- e.g., 'free', 'pro'
+    subscription_status TEXT, -- e.g., 'active', 'trialing', 'canceled'
+    last_synced_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+COMMENT ON TABLE app_public.customers IS 'Maps internal users to Stripe customers and their subscription status.';
+
+-- Entitlements/Usage (Optional for V1, but good for future usage-based billing)
+CREATE TABLE app_public.usage_records (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    feature TEXT NOT NULL, -- e.g., 'ai_snapshot_generations', 'data_storage_mb'
+    value DECIMAL NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+COMMENT ON TABLE app_public.usage_records IS 'Tracks user-specific feature usage.';
+
+```
+
+**5.1. Row Level Security (RLS) Policies (Example for `libraries` table)**
+
+```sql
+-- Enable RLS on all relevant tables
+ALTER TABLE app_public.libraries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.import_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.memories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.ai_snapshots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.ai_snapshot_versions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.snapshot_citations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.customers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE app_public.usage_records ENABLE ROW LEVEL SECURITY;
+
+-- Policy for libraries: Users can only see/manage their own libraries
+CREATE POLICY "Users can create libraries." ON app_public.libraries FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can view their own libraries." ON app_public.libraries FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can update their own libraries." ON app_public.libraries FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own libraries." ON app_public.libraries FOR DELETE USING (auth.uid() = user_id);
+
+-- Policy for import_jobs: Users can only see/manage jobs in their libraries
+CREATE POLICY "Users can create import jobs in their libraries." ON app_public.import_jobs FOR INSERT WITH CHECK (auth.uid() = user_id AND (SELECT user_id FROM app_public.libraries WHERE id = library_id) = auth.uid());
+CREATE POLICY "Users can view import jobs in their libraries." ON app_public.import_jobs FOR SELECT USING (auth.uid() = user_id AND (SELECT user_id FROM app_public.libraries WHERE id = library_id) = auth.uid());
+-- Repeat similar patterns for memories, ai_snapshots, ai_snapshot_versions, snapshot_citations.
+-- For customers and usage_records, policies are simpler: users can view/manage their own record via user_id = auth.uid().
+```
+
+---
+
+## 6. Storage Bucket Design (Supabase Storage)
+
+*   **Bucket Name:** `memoir-ai-exports`
+*   **Purpose:** Store raw uploaded user export files (e.g., CSV, JSON) and generated user export archives.
+*   **Structure:**
+    *   `memoir-ai-exports/users/{user_id}/libraries/{library_id}/raw_imports/{job_id}/{original_filename}`
+    *   `memoir-ai-exports/users/{user_id}/libraries/{library_id}/user_exports/{export_job_id}/{archive_filename.zip}`
+*   **Security Policies (Supabase Storage RLS):**
+    *   Users can `INSERT` (upload) only to their own `users/{user_id}/...` paths.
+    *   Users can `SELECT` (download) only from their own `users/{user_id}/...` paths.
+    *   Authenticated backend services (Edge Functions, database triggers) should have elevated privileges to read/write as needed for job processing.
+
+---
+
+## 7. Import Pipeline Spec (One Source Format: Facebook Messenger JSON)
+
+**7.1. Overview:**
+A job-based, resumable pipeline that ingests a user-uploaded Facebook Messenger JSON archive, parses it, normalizes it into `app_public.memories`, and updates `app_public.import_jobs` status and logs.
+
+**7.2. Steps:**
+
+1.  **Initiate Job (Frontend -> Backend):** User uploads file to a pre-signed S3 URL (Supabase Storage). Frontend then calls `POST /libraries/:id/imports` with the Storage file path.
+2.  **Job Creation & Queueing (Backend):**
+    *   Create a record in `app_public.import_jobs` with `status: 'pending'`.
+    *   Add job to a processing queue (e.g., Supabase Realtime + custom worker, or dedicated message queue).
+3.  **Download & Decompress (Worker):**
+    *   Worker fetches job from queue.
+    *   Downloads file from Supabase Storage.
+    *   Decompresses (if zipped).
+4.  **Parse & Validate (Worker):**
+    *   Iterate through JSON files (e.g., `message_*.json`).
+    *   Validate structure against expected Facebook Messenger schema.
+    *   Identify messages, participants, timestamps. Handle potential errors (malformed JSON, missing fields).
+5.  **Normalize & Transform (Worker):**
+    *   Convert raw message data into `app_public.memories` schema.
+    *   Extract `content`, `timestamp`, `sender_name`, `participants`, `source_type`.
+    *   Store original JSON snippet in `metadata` field.
+6.  **Batch Insert (Worker):**
+    *   Batch insert `app_public.memories` records into Postgres, linked to `library_id`, `user_id`, and `import_job_id`.
+    *   Handle duplicates or partial imports gracefully (e.g., skip existing `original_id` if re-importing).
+7.  **Index/Post-processing (Worker - Optional V1.1):**
+    *   Generate text embeddings for `memories.content` (e.g., via OpenAI API) and store in `memories.embedding`.
+8.  **Update Job Status (Worker):**
+    *   On completion: Update `import_jobs.status` to `complete`, `progress_percentage` to 100, `completed_at`.
+    *   On error: Update `import_jobs.status` to `failed`, `error_message`, `log_output`.
+
+---
+
+## 8. Job System Spec (General)
+
+**8.1. Principles:**
+*   **Resumable:** Jobs should support pausing and resuming if possible (e.g., on worker restart).
+*   **Fault-Tolerant:** Retries for transient failures. Clear logging for permanent errors.
+*   **Observable:** Users and admins can track progress and status.
+
+**8.2. Core Components:**
+*   **`import_jobs` table:** As defined in DB schema. Serves as the job registry.
+*   **Job Producer:** Frontend or backend APIs that create job records in `import_jobs`.
+*   **Job Queue:** Supabase Realtime (for simple triggers) or a dedicated message queue (e.g., Redis Streams, RabbitMQ) for more robust async processing.
+*   **Job Workers:** Backend processes (e.g., Node.js workers running in a containerized environment, or Supabase Edge Functions for smaller, stateless tasks) that pick up and execute jobs.
+
+**8.3. Steps/States:**
+*   `pending`: Job created, awaiting processing.
+*   `running`: Job actively being processed. `progress_percentage` updates.
+*   `complete`: Job finished successfully.
+*   `failed`: Job encountered an unrecoverable error. `error_message`, `log_output` populated.
+*   `cancelled`: User or admin stopped the job.
+
+**8.4. Retries & Error Handling:**
+*   **Transient Errors:** Implement exponential backoff for retries (e.g., 3-5 retries for network issues, temporary API failures).
+*   **Permanent Errors:** Log error, mark job as `failed`, notify user.
+*   **Dead-Letter Queue (Future):** For jobs that consistently fail after retries.
+
+**8.5. Logs:**
+*   `log_output` (JSONB): Store structured log events for each job step, including timestamps, messages (info, warn, error), and potentially context.
+
+---
+
+## 9. API Contract Table (Key Endpoints)
+
+*(This is a selection; full contracts would include request/response body schemas)*
+
+| Route | Method | Description | Request Body Example | Success Response Example | Error Codes | Authentication |
+| :------------------------------------------------ | :----- | :--------------------------------------------- | :------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------- | :---------- | :------------- |
+| `/libraries` | `POST` | Create new Library | `{ "name": "My Memoir" }` | `{ "id": "uuid", "name": "My Memoir", ... }` | `400` (bad req), `401` (unauth), `409` (duplicate name) | `JWT` |
+| `/libraries/:id/imports` | `POST` | Initiate an import job | `{ "source_type": "facebook_messenger_json", "file_path": "bucket_path/file.json" }` | `{ "job_id": "uuid", "status": "pending", ... }` | `400`, `401`, `403` (not owner) | `JWT` |
+| `/libraries/:id/memories` | `GET` | Get memories for timeline | `?start_date=...&end_date=...&source=...&q=...` | `[{ "id": "uuid", "content": "...", "timestamp": "...", ... }]` | `401`, `403` | `JWT` |
+| `/libraries/:id/snapshots` | `POST` | Generate AI snapshot | `{ "memory_ids": ["uuid1", "uuid2"], "title": "Summer 2020" }` | `{ "id": "uuid", "title": "...", "version_number": 1, ... }` | `400`, `401`, `403`, `500` (AI error) | `JWT` |
+| `/webhooks/stripe` | `POST` | Handle Stripe events | `{ "type": "customer.subscription.updated", ... }` | `200` | `400`, `500` | `Stripe Sig` |
+
+---
+
+## 10. AI System Spec (Citations + Versioning + Permissions)
+
+**10.1. Core Functionality: `generate_ai_snapshot`**
+
+*   **Input:** `library_id`, `user_id`, `selected_memory_ids` (or time range).
+*   **Process:**
+    1.  Fetch `memories` corresponding to `selected_memory_ids`.
+    2.  Concatenate/format `content` of selected memories for LLM input.
+    3.  Call LLM API (e.g., OpenAI GPT-4) with a prompt like:
+        "You are an expert at summarizing personal digital archives. Summarize the following stream of messages/events into a concise narrative. **Crucially, include inline citations (e.g., [1], [2]) for every key piece of information, mapping back to the original message/event.** After the summary, list the citations with their unique identifiers.
+        [Original Messages/Events: {memory.id}: {memory.timestamp} {memory.content} ...]"
+    4.  Parse LLM output: extract narrative `content` and map inline citations to `memory.id`s.
+    5.  Store result:
+        *   Create new `app_public.ai_snapshots` record (if new snapshot).
+        *   Create new `app_public.ai_snapshot_versions` record with `content`, `version_number`.
+        *   Create `app_public.snapshot_citations` records linking `snapshot_version_id` to `memory_id`s.
+
+**10.2. Citations:**
+*   **Mechanism:** LLM is prompted to generate inline citations (e.g., `[1]`, `[2]`).
+*   **Mapping:** A post-processing step parses the LLM output to match these `[N]` references to the `memory.id`s provided in the input prompt.
+*   **Display:** Frontend renders `[1]` as a clickable link/pill. On click, it scrolls to or highlights the referenced `Memory` in the timeline.
+
+**10.3. Versioning:**
+*   **Non-Destructive:** Any save/edit to an `AI Snapshot` creates a *new* `ai_snapshot_version` record. The `version_number` increments.
+*   **Read:** Default view shows the highest `version_number` (latest). User can select older versions.
+*   **Database:** Handled by `app_public.ai_snapshots` (metadata) and `app_public.ai_snapshot_versions` (actual content + history).
+
+**10.4. Permissions:**
+*   **User-Scoped:** Only the `user_id` associated with a `library_id` can create, view, or edit snapshots within that library. Enforced by RLS on `ai_snapshots` and `ai_snapshot_versions`.
+*   **Usage Limits:** Integrate with billing system to track AI snapshot generations against user plan entitlements (e.g., "Pro plan gets 100 snapshots/month"). If limit reached, prevent generation.
+
+---
+
+## 11. Billing Spec (Stripe Webhooks + Entitlements)
+
+**11.1. Core Integration:**
+*   **Stripe Checkout:** Frontend initiates Stripe Checkout sessions for subscriptions.
+*   **Stripe Customer Portal:** Provide link for users to manage their subscription directly via Stripe.
+*   **Webhook Listener:** A Supabase Edge Function (`/webhooks/stripe`) listens for Stripe events.
+
+**11.2. Key Webhook Events & Actions:**
+
+*   `customer.subscription.created`:
+    *   Find/create `app_public.customers` record for `auth.uid()`.
+    *   Update `current_plan`, `subscription_status` (e.g., 'active', 'trialing').
+    *   Grant entitlements.
+*   `customer.subscription.updated`:
+    *   Update `current_plan`, `subscription_status` for the customer.
+    *   Adjust entitlements (e.g., plan upgrade/downgrade).
+*   `customer.subscription.deleted`:
+    *   Update `subscription_status` to 'canceled'.
+    *   Revoke/downgrade entitlements (e.g., back to 'free' plan).
+*   `invoice.payment_succeeded`: Record successful payment (optional, for history).
+*   `invoice.payment_failed`: Handle payment failures (e.g., notify user, update `subscription_status`).
+
+**11.3. Entitlements & Usage:**
+*   **Plan Definition:** Define clear plans in Stripe (e.g., Free, Pro).
+    *   **Free Plan:** Limited storage (e.g., 100MB), limited AI snapshots (e.g., 5/month).
+    *   **Pro Plan:** Increased storage (e.g., 10GB), increased AI snapshots (e.g., 100/month).
+*   **Enforcement:**
+    *   Frontend reads `app_public.customers.current_plan` to show UI limits.
+    *   Backend APIs (e.g., `POST /libraries/:id/snapshots`, file upload to Storage) check current plan entitlements (from `app_public.customers` or `app_public.usage_records`) before processing requests. Deny if limits exceeded.
+*   **Usage Tracking (for AI Snapshots):**
+    *   Every successful `POST /libraries/:id/snapshots` increments a counter for `user_id` and `feature = 'ai_snapshot_generations'` in `app_public.usage_records` (or a more optimized counter in `customers` table).
+    *   This counter is reset monthly (handled by webhook event/scheduled job).
+
+---
+
+## 12. Non-Functional Requirements (NFR) Targets
+
+*   **Performance:**
+    *   Timeline load: < 2 seconds for 10,000 memories (filtered).
+    *   Full-text search: < 1 second for 100,000 memories.
+    *   AI Snapshot generation: < 30 seconds (P90, assuming external LLM API latency).
+    *   Import job initiation: < 1 second.
+*   **Scalability:**
+    *   Support 10,000 concurrent active users.
+    *   Handle individual libraries up to 10GB of raw data.
+*   **Security:**
+    *   All user data encrypted at rest (Supabase default).
+    *   All data in transit encrypted (HTTPS).
+    *   OWASP Top 10 vulnerabilities addressed.
+    *   Regular security audits (internal/external).
+*   **Reliability:**
+    *   Uptime: 99.9% for core services (DB, API).
+    *   Data Durability: 99.9999999% (Supabase Storage/Postgres).
+    *   Import job success rate: >95%.
+*   **Usability:**
+    *   Intuitive UI for core workflows (onboarding, import, timeline, snapshot).
+    *   Clear error messages and user guidance.
+*   **Maintainability:**
+    *   Modular codebase (React components, backend services).
+    *   Comprehensive test suite (>80% code coverage).
+    *   Clear documentation for API, DB schema, key modules.
+
+---
+
+## 13. QA Matrix (Key Test Areas)
+
+| Test Category | Description | Key Test Cases (Examples) |
+| :------------------------------ | :------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------- |
+| **Authentication** | User login, registration, password reset. | Register new user, login/logout, invalid credentials, social SSO (if enabled). |
+| **Library Management** | Create, view, update, delete Libraries. | Create multiple libraries, delete empty/non-empty library. |
+| **Data Import (V1)** | Upload, parsing, normalization, job status. | Successful import (large file), malformed file, interrupted upload, re-import same data. |
+| **Unified Timeline** | Display, filtering, navigation. | Load 10k memories, filter by date/source, scroll performance, empty library state. |
+| **Search** | Full-text search accuracy, performance. | Search for exact phrase, partial words, special characters, no results, large result set. |
+| **AI Snapshots** | Generation, citation, versioning, editing. | Generate snapshot from time range, verify citations, edit snapshot (new version), view history, delete. |
+| **Data Provenance** | Citation links. | Click on citation in snapshot, confirm correct memory highlighted. |
+| **User Controls** | Export, delete data. | Export full library, delete specific source data, delete entire library. |
+| **RLS/Permissions** | Data isolation. | User A cannot see User B's libraries/data. Test API calls directly bypassing UI. |
+| **Billing/Entitlements** | Plan limits, subscription changes. | Free user tries to exceed AI limit, Pro user actions, subscription upgrade/downgrade. |
+| **Job System** | Status, logs, retries. | View job in all states, check logs for errors, simulate transient failure. |
+| **Performance** | Load times, responsiveness. | Measure timeline/search load, AI generation time under load. |
+| **Error Handling** | Robustness against invalid inputs, API failures. | Bad import file, LLM API error, network disconnects. |
+| **UI Responsiveness** | Desktop app resizing. | Resize Electron window, check component layout. |
+
+---
+
+## 14. Seed Data Fixtures (Example JSON/SQL)
+
+**14.1. `auth.users` (managed by Supabase, but for reference):**
+*   `user_id_1`: email: `testuser@example.com`, password: `password`
+*   `user_id_2`: email: `pro_user@example.com`, password: `password`
+
+**14.2. `app_public.libraries`:**
+```json
+[
+  { "id": "lib_uuid_1", "user_id": "user_id_1", "name": "My Life Story" },
+  { "id": "lib_uuid_2", "user_id": "user_id_1", "name": "Work Project Archive" },
+  { "id": "lib_uuid_3", "user_id": "user_id_2", "name": "Pro User Archive" }
+]
+```
+
+**14.3. `app_public.import_jobs`:**
+```json
+[
+  { "id": "job_uuid_1", "library_id": "lib_uuid_1", "user_id": "user_id_1", "source_type": "facebook_messenger_json", "status": "complete", "progress_percentage": 100, "file_path": "..." }
+]
+```
+
+**14.4. `app_public.memories` (sample messages from `job_uuid_1`):**
+```json
+[
+  { "id": "mem_uuid_1", "library_id": "lib_uuid_1", "user_id": "user_id_1", "original_id": "msg1", "source_type": "facebook_messenger", "timestamp": "2023-01-15T10:00:00Z", "content": "Hey, remember that trip to Paris?", "metadata": { "sender": "Alice" } },
+  { "id": "mem_uuid_2", "library_id": "lib_uuid_1", "user_id": "user_id_1", "original_id": "msg2", "source_type": "facebook_messenger", "timestamp": "2023-01-15T10:05:00Z", "content": "Oh yeah, that was amazing! The Eiffel Tower at night was unforgettable.", "metadata": { "sender": "Bob" } }
+]
+```
+
+**14.5. `app_public.ai_snapshots` & `app_public.ai_snapshot_versions` & `app_public.snapshot_citations`:**
+*   Snapshot for `lib_uuid_1`, summarizing `mem_uuid_1` and `mem_uuid_2`.
+    *   Version 1: "Alice and Bob reminisced about their Paris trip, specifically mentioning the Eiffel Tower at night [1]."
+    *   Citations: `snapshot_version_id` -> `mem_uuid_2`
+
+---
+
+## 15. Environment Setup
+
+**15.1. Local Development:**
+*   **Node.js:** v18+
+*   **Yarn/NPM:** For package management.
+*   **Docker Desktop:** For local Supabase (if not using hosted).
+*   **Git:** Version control.
+*   **IDE:** VS Code (recommended) with relevant extensions (PostgreSQL, React, ESLint, Prettier).
+
+**15.2. Supabase Project Setup:**
+*   Create new Supabase project.
+*   Configure `auth.users` (default).
+*   Apply canonical DB schema (Section 5).
+*   Configure Storage bucket `memoir-ai-exports` and RLS policies (Section 6).
+*   Set up Edge Functions for Stripe webhooks and potentially AI/Job orchestration.
+
+**15.3. External APIs:**
+*   **OpenAI API Key:** For AI snapshot generation (stored securely as environment variable).
+*   **Stripe API Keys:** Public/Secret keys for development and production (stored securely).
+
+**15.4. Electron Project Initialization:**
+*   `create-electron-app` or similar boilerplate.
+*   Integrate React for UI.
+*   Configure environment variables (`.env` files) for API keys, Supabase URLs, etc.
+
+**15.5. CI/CD (Future Consideration for V1.1+):**
+*   GitHub Actions/GitLab CI/Vercel for frontend/Electron builds, automated tests, deployment.
+*   Supabase CLI for database migrations and function deployment.

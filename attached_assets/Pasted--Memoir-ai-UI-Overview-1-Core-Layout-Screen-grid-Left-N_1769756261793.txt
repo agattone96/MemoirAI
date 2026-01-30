@@ -1,0 +1,209 @@
+
+## Memoir.ai — UI Overview
+
+### 1. **Core Layout**
+
+**Screen grid**
+
+* **Left Nav (Persistent)**
+
+  * Home
+  * Timeline
+  * Memories
+  * Tags
+  * Analytics
+  * Settings
+* **Main Canvas (Center)**
+
+  * Dynamic content area
+  * Contextual actions at top
+* **Detail Pane (Right)**
+
+  * Expands on selected item
+  * Editable metadata + AI tools
+
+**Visual hierarchy**
+
+* High contrast heading
+* Secondary info de-emphasized
+* Card clusters for memory items
+
+---
+
+## 2. **Home Dashboard**
+
+**Top bar**
+
+* Search ▷ “Find memory, date, tag”
+* Quick filters: People, Locations, Topics
+
+**Panels**
+
+* **Recent Moments**
+
+  * Cards with title, date, snippet
+* **Insights**
+
+  * Smart summaries
+  * Mood trends
+  * Most active tags
+* **Quick Actions**
+
+  * * Add memory
+  * Import (Photos / Notes / Chat logs)
+  * Prompt AI (Summarize / Expand)
+
+---
+
+## 3. **Timeline View**
+
+**Visual timeline**
+
+* Vertical scroll
+* Milestones anchored by date
+* Expandable sections
+
+**Memory nodes**
+
+* Thumbnail/emoji
+* Title + date
+* Hover → preview
+
+**Interactions**
+
+* Click node → open detail pane
+* Drag to reorder / group
+
+---
+
+## 4. **Memory Detail Pane**
+
+**Header**
+
+* Title
+* Date/time
+* People tagged
+
+**Body**
+
+* Full text / media carousel
+* AI-generated summary (editable)
+
+**Metadata**
+
+* Tags
+* Location
+* Related memories
+
+**Actions**
+
+* Edit
+* Merge
+* Export
+* Train AI on style/tone
+
+---
+
+## 5. **Tags & People Screen**
+
+**Tag index**
+
+* Alphabetical + colored dots
+* Count badge (# of associated memories)
+
+**People roster**
+
+* Auto-suggested from content
+* Click → see all related memories
+
+---
+
+## 6. **Search & AI Prompts**
+
+**Command bar**
+
+```
+/summarize
+/expand
+/rewrite
+/compare
+/tag
+```
+
+**Autocomplete**
+
+* Dates
+* Tags
+* People
+
+**Results UI**
+
+* Ranked list
+* Snippets with highlight
+* Filters (type, date range, source)
+
+---
+
+## 7. **Analytics**
+
+**Charts**
+
+* Memory volume over time
+* Emotional tone trends (positive/neutral/negative)
+* Tag frequency heatmap
+
+**Export**
+
+* PDF summary
+* CSV timeline
+
+---
+
+## 8. **Settings**
+
+**Personalization**
+
+* Memory categories
+* Default AI style (formal, reflective, concise)
+* Privacy & data sources
+
+**Integrations**
+
+* Photos
+* Notes
+* Chat exports
+
+---
+
+## 9. **Interaction Patterns / Micro-UX**
+
+**Inline edit**
+
+* Click text → transforms to editor
+
+**Smart suggestions**
+
+* When adding content, AI prompts contextually
+  *e.g. “Add tag for recurring person?”*
+
+**Undo / History**
+
+* Versioning panel per memory
+
+---
+
+## 10. **Visual Style**
+
+**Palette**
+
+* Neutral base
+* Accent per tag category
+
+**Typography**
+
+* Clear hierarchy (Date > Title > Body)
+
+**Components**
+
+* Cards with subtle shadows
+* High legibility lists

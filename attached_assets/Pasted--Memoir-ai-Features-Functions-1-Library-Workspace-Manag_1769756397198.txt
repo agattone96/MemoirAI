@@ -1,0 +1,323 @@
+
+# Memoir.ai — Features & Functions
+
+## 1) Library & Workspace Management
+
+Core container for all user data.
+
+**Functions**
+
+* Create/open multiple libraries
+* Library metadata management
+* Storage configuration
+* Backup and restore
+* Workspace switching
+* Library export or migration
+* Archive health validation
+
+---
+
+## 2) Data Import Engine
+
+Brings fragmented digital history into one system.
+
+**Functions**
+
+* Import message exports
+* Import social data dumps
+* Import notes, documents, photos
+* CSV/JSON mapping support
+* Field normalization
+* Deduplication
+* Timezone correction
+* Attachment linking
+* Batch imports
+* Import rollback
+* Error reporting
+* Import reprocessing
+
+---
+
+## 3) Data Normalization & Indexing
+
+Turns raw exports into usable structured data.
+
+**Functions**
+
+* Participant detection
+* Conversation reconstruction
+* Thread grouping
+* Timestamp normalization
+* Attachment indexing
+* Entity extraction
+* Conversation linking across platforms
+* Search indexing
+* Relationship inference
+* Duplicate detection
+
+---
+
+## 4) Unified Timeline Engine
+
+Central browsing surface.
+
+**Functions**
+
+* Chronological aggregation
+* Cross-platform event merging
+* Memory clustering
+* Timeline filtering
+* Timeline grouping
+* Scroll navigation
+* Date jumps
+* Event pinning
+* Timeline export
+* Timeline snapshots
+
+---
+
+## 5) Memory Object System
+
+Every item becomes an editable “memory.”
+
+**Functions**
+
+* Memory editing
+* Merge memories
+* Split clusters
+* Attach notes
+* Attach media
+* Tag assignment
+* Person linking
+* Location tagging
+* Memory versioning
+* Memory provenance tracking
+
+---
+
+## 6) Search System
+
+Fast retrieval across entire archive.
+
+**Functions**
+
+* Full-text search
+* Metadata search
+* Date range search
+* Source filtering
+* Person filtering
+* Tag filtering
+* Media search
+* Saved searches
+* Advanced operators
+* Result ranking
+
+---
+
+## 7) People & Relationship Modeling
+
+Creates structured profiles from conversation data.
+
+**Functions**
+
+* Automatic person detection
+* Alias merging
+* Relationship tagging
+* Interaction frequency tracking
+* Co-occurrence mapping
+* Person timeline generation
+* Person note storage
+* Duplicate identity resolution
+
+---
+
+## 8) Tagging & Taxonomy
+
+User and AI classification system.
+
+**Functions**
+
+* Manual tagging
+* AI-assisted tagging
+* Tag hierarchies
+* Tag usage analysis
+* Auto-tag rules
+* Tag merging
+* Tag filtering views
+* Tag export
+
+---
+
+## 9) AI Analysis & Writing Engine
+
+Turns archives into narratives and summaries.
+
+**Functions**
+
+* Memory summaries
+* Event summaries
+* Period summaries
+* Relationship arc summaries
+* Character studies
+* Chapter drafting
+* Memoir drafting
+* Style rewriting
+* Narrative expansion
+* Narrative compression
+* Topic extraction
+* Emotional tone inference
+* Conversation summaries
+
+---
+
+## 10) Insight & Pattern Detection
+
+Finds patterns in long-term behavior.
+
+**Functions**
+
+* Communication volume trends
+* Interaction frequency charts
+* Topic trends
+* Relationship intensity periods
+* Activity spikes/drops
+* Long-term timeline heatmaps
+* Notable period detection
+
+---
+
+## 11) Studio / Writing Workspace
+
+Where users refine AI output.
+
+**Functions**
+
+* Draft editing
+* Source citation linking
+* Regeneration with constraints
+* Version comparison
+* Chapter organization
+* Narrative structuring
+* Export-ready manuscript generation
+
+---
+
+## 12) Export System
+
+User owns their data.
+
+**Functions**
+
+* Timeline export (CSV/JSON)
+* Memory export
+* Person dossier export
+* Narrative export (PDF/DOCX/Markdown)
+* Full archive export
+* Scheduled exports
+* Export job management
+
+---
+
+## 13) Storage & Sync Layer
+
+Data persistence and optional cloud workspace.
+
+**Functions**
+
+* Workspace sync
+* Conflict resolution
+* Offline operation
+* Backup snapshots
+* Restore checkpoints
+* Storage quota management
+
+---
+
+## 14) Privacy & Control Layer
+
+User controls data exposure.
+
+**Functions**
+
+* Source exclusion rules
+* Data redaction
+* PII filtering
+* AI processing controls
+* Local-only processing modes
+* Delete-source workflows
+
+---
+
+## 15) Activity & Audit Log
+
+Transparency and traceability.
+
+**Functions**
+
+* Import logs
+* Edit logs
+* AI generation logs
+* Merge/split history
+* Export history
+* Sync activity logs
+
+---
+
+## 16) Command Palette / Power User Controls
+
+Fast navigation and actions.
+
+**Functions**
+
+* Jump to views
+* Trigger imports
+* Create memory
+* Run AI commands
+* Filter timeline
+* Open person/tag directly
+
+---
+
+## 17) System Reliability Tools
+
+Keeps archives usable long-term.
+
+**Functions**
+
+* Database integrity checks
+* Re-index operations
+* Import repair tools
+* Attachment relinking
+* Performance diagnostics
+
+---
+
+## 18) Account & Billing Layer
+
+Operational infrastructure.
+
+**Functions**
+
+* Authentication
+* Subscription management
+* Payment integration
+* Usage quotas
+* Plan enforcement
+
+---
+
+# What Memoir.ai Actually Is
+
+Not a journal.
+Not just search.
+Not a chatbot.
+
+It’s a **personal history operating system** that:
+
+1. Ingests scattered digital life
+2. Structures it
+3. Makes it searchable
+4. Analyzes patterns
+5. Turns it into coherent narrative output
+6. Lets you export your life in usable formats
+ 

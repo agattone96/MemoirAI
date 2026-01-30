@@ -1,0 +1,371 @@
+
+# 0) Global UI (every screen)
+
+## App Shell
+
+* **Left Sidebar (persistent)**
+
+  * Logo + Library selector
+  * Nav: **Dashboard, Timeline, Imports, Search, People, Tags, Insights, Studio, Exports, Settings**
+  * Status chips: indexing, storage, sync, last import
+* **Top Bar (contextual)**
+
+  * Global search box + filters
+  * “New” button (memory/note/event)
+  * Command palette trigger
+* **Right Inspector (contextual, collapsible)**
+
+  * Shows details/actions for selected item (memory, person, tag, import job, export job)
+
+---
+
+# 1) Auth Screen
+
+## Purpose
+
+Sign in / create account.
+
+## Layout
+
+* Email + password
+* OAuth options (optional)
+* “Forgot password”
+* Legal links (privacy/terms)
+
+## Primary actions
+
+* **Sign in**
+* **Create account**
+
+---
+
+# 2) Onboarding
+
+## 2.1 Welcome
+
+* What Memoir.ai does (1 screen, minimal)
+* Pick intent: personal archive, memoir drafting, relationship timeline, etc.
+
+## 2.2 Create / Select Library
+
+* Library name
+* Storage mode choice (cloud workspace vs local export rules)
+* Basic preferences: default timezone, language
+
+## 2.3 Permissions (optional)
+
+* File access (for imports)
+* Photo library access (if applicable)
+
+## 2.4 First Import Prompt
+
+* CTA: “Import your first source”
+* Shows supported formats
+
+---
+
+# 3) Dashboard
+
+## Purpose
+
+Home base: recents + progress + shortcuts.
+
+## Modules
+
+* **Recent Memories** (cards)
+* **Recent Imports** (status + errors)
+* **Quick Actions**
+
+  * New memory
+  * Import source
+  * Generate snapshot
+* **Insights Preview**
+
+  * trending tags, active people, timeline spikes
+
+---
+
+# 4) Timeline
+
+## Purpose
+
+Unified chronological stream.
+
+## Layout
+
+* Left: timeline list (date-grouped)
+* Center: memory/event cards
+* Right inspector: selected item
+
+## Controls
+
+* Filters: date range, source, people, tags, media type
+* Sort: newest/oldest, relevance
+* Grouping: day/week/month, “threads”
+
+## Item types
+
+* Message clusters
+* Photo moments
+* Notes
+* Events (manual or inferred)
+* “Snapshot” outputs (AI summaries)
+
+---
+
+# 5) Memory Detail
+
+## Purpose
+
+Deep view + edit of a single memory (or cluster).
+
+## Sections
+
+* Header: title, date/time, confidence (if inferred), source badges
+* Content: text + media carousel
+* AI summary: editable, versioned
+* Metadata:
+
+  * people
+  * tags
+  * location
+  * attachments
+  * related memories
+* Audit trail: edits, merges, provenance
+
+## Actions
+
+* Edit
+* Merge/split
+* Pin
+* Export (PDF/MD/JSON)
+* Generate: summary, chapter draft, character note, relationship beat
+
+---
+
+# 6) Search
+
+## Purpose
+
+Fast retrieval across everything.
+
+## Layout
+
+* Query bar with operator help
+* Results list with snippet highlighting
+* Filter sidebar
+
+## Filters
+
+* date range
+* person
+* tag
+* source
+* media type
+* “only originals / only AI outputs”
+
+## Power features
+
+* Saved searches
+* Search operators (e.g., `person:`, `tag:`, `source:`, `has:photo`)
+
+---
+
+# 7) People
+
+## Purpose
+
+Entity hub for people detected/added.
+
+## Index screen
+
+* People grid/list
+* Sort: most frequent, recent, alphabetical
+* Merge duplicates (same person different name)
+
+## Person profile screen
+
+* Name + aliases + avatar
+* Relationship label (optional)
+* Timeline of interactions
+* Frequent co-occurring tags/people
+* “Notes about this person” (private, manual)
+
+---
+
+# 8) Tags
+
+## Purpose
+
+Taxonomy and organization.
+
+## Tag index
+
+* Tag list with counts
+* Color/category
+* Search tags
+
+## Tag detail
+
+* Tag summary (AI optional)
+* Related tags (co-occurrence graph list)
+* Memories list filtered by tag
+* Rules (optional): auto-tag patterns
+
+---
+
+# 9) Imports
+
+## Purpose
+
+Bring data in and track ingestion.
+
+## 9.1 Import Hub
+
+* “New Import” button
+* Supported sources list (Messages export, Facebook, WhatsApp, Photos, Notes, etc.)
+* Recent import jobs table (status, duration, errors)
+
+## 9.2 Import Wizard
+
+* Select source type
+* Upload/select files
+* Map fields (if CSV)
+* Preview parsed data
+* Confirm import
+
+## 9.3 Import Job Detail
+
+* Progress timeline (parse → normalize → index → entity extraction)
+* Error list (actionable)
+* Re-run steps / rollback import
+
+---
+
+# 10) Insights
+
+## Purpose
+
+Patterns without pretending to be a therapist.
+
+## Modules
+
+* Activity over time (volume)
+* Topic/tag trends
+* People interaction frequency
+* “Mood/tone” trend (optional, labeled as inference)
+* Notable periods (spikes/drops)
+
+## Actions
+
+* Generate report snapshot (PDF)
+* Jump from chart to timeline slice
+
+---
+
+# 11) Studio (Writing / Generation)
+
+## Purpose
+
+Turn archive into outputs.
+
+## Sections
+
+* **Snapshots** (short summaries by time/person/topic)
+* **Chapters** (long-form drafts)
+* **Character Studies** (people profiles as narrative)
+* **Relationship Arc** (two-person timeline + beats)
+* **Prompt Builder** (structured prompt UI)
+
+## Output UI
+
+* Side-by-side: source citations vs generated text
+* Version history
+* “Regenerate with constraints”
+* Export formats
+
+---
+
+# 12) Exports
+
+## Purpose
+
+Get your stuff out in usable formats.
+
+## Export types
+
+* Timeline export (CSV/JSON)
+* Person dossier (PDF/MD)
+* Tag pack (JSON)
+* Full archive bundle (zip)
+* “Memoir draft” (DOCX/PDF/MD)
+
+## Export jobs
+
+* Queue list + progress
+* Download history
+
+---
+
+# 13) Notifications / Activity Log
+
+## Purpose
+
+System transparency.
+
+## Content
+
+* Import completed/failed
+* Indexing finished
+* Entity merges
+* Export ready
+* Sync status changes
+
+---
+
+# 14) Settings
+
+## 14.1 Account
+
+* email, password reset
+* sessions/devices
+* delete account
+
+## 14.2 Storage & Sync
+
+* Workspace selection
+* Sync toggle + status
+* Retention rules
+* Backups/export schedule
+
+## 14.3 Privacy
+
+* redaction rules
+* “exclude these folders/files”
+* PII handling preferences
+* telemetry toggle (should be off by default)
+
+## 14.4 AI
+
+* model preferences
+* “allow AI on these sources”
+* writing style presets
+* citation requirements
+
+## 14.5 Appearance
+
+* theme
+* density (compact/cozy)
+* font size
+
+---
+
+# 15) Error States (not a screen, but it will haunt you)
+
+* Empty library state
+* Import parse failure with “fix mapping”
+* Partial indexing state
+* Missing permissions
+* Sync conflict resolution
+
+---

@@ -1,0 +1,45 @@
+Generate the complete Memoir.ai (Version 1) application, including all specified frontend (Electron + React), backend (Supabase), and integration (Stripe, AI) components. The generation must strictly adhere to the previously defined Build Specification Pack.
+Output Requirements:
+Produce a structured output containing all necessary code, configuration, and documentation files to deploy and run Memoir.ai V1. This includes, but is not limited to:
+Project Root:
+package.json (with scripts for Electron, React, and general tasks)
+main.js (Electron main process setup)
+.env.example (template for environment variables)
+.gitignore
+README.md (basic project setup and run instructions)
+renderer/ (React Frontend Application):
+Complete React application code (TypeScript preferred) implementing the LoginPage, DashboardLayout, LibrarySelector, TimelineView, ImportWizard, SnapshotGenerator, SnapshotDetailView, JobMonitor components, and all necessary sub-components.
+Implement basic UI styling based on the Design System Tokens (Section 4.1).
+src/lib/supabase.ts (Supabase client initialization).
+Routing implementation using a suitable React router.
+API client code for interacting with the backend endpoints.
+supabase/ (Supabase Configuration & Backend Logic):
+migrations/ directory with SQL files for:
+Canonical DB Schema (Section 5, app_public and app_private schemas, all tables, types, indices, comments).
+RLS Policies (Section 5.1, applied to all relevant tables).
+storage/ configuration defining the memoir-ai-exports bucket and its RLS policies (Section 6).
+edge-functions/ directory containing:
+Stripe Webhook listener (webhooks/stripe) implementation (Section 11.2, handling key events).
+Placeholder Edge Functions or API routes for initiating imports (/libraries/:id/imports) and AI snapshots (/libraries/:id/snapshots). These should handle input validation, permission checks, and job queuing.
+Backend Workers (External to Supabase, e.g., Node.js service):
+A separate Node.js service (e.g., in a worker/ directory) implementing the Import Pipeline (Section 7) and the general Job System (Section 8) logic.
+This worker should be able to:
+Poll/listen for new jobs from the Supabase import_jobs table (or a dedicated queue).
+Download files from Supabase Storage.
+Parse and normalize Facebook Messenger JSON data.
+Batch insert memories into Supabase.
+Update import_jobs status, progress, and logs.
+Handle basic error retries.
+AI System Integration: Within the worker, implement the generate_ai_snapshot functionality (Section 10.1), including LLM API calls, citation parsing, and database storage for ai_snapshots, ai_snapshot_versions, and snapshot_citations.
+API Contracts:
+A structured definition (e.g., OpenAPI/Swagger YAML or Markdown) for all key API endpoints identified in Section 9.
+Billing & Entitlements:
+Code within frontend and backend to integrate Stripe Checkout and enforce plan entitlements (Section 11.3).
+Seed Data Fixtures:
+SQL or JSON files for auth.users, app_public.libraries, app_public.import_jobs, app_public.memories, app_public.ai_snapshots, app_public.ai_snapshot_versions, app_public.snapshot_citations (Section 14).
+Documentation:
+A DEVELOPMENT.md file outlining Environment Setup (Section 15), including instructions for local setup, Supabase project configuration, external API keys, and running the application.
+A QA_PLAN.md file based on the QA Matrix (Section 13).
+Constraints & Non-Functional Requirements (Implicitly enforced during generation):
+All code generated must adhere to the principles of job-based imports, visible provenance, versioned and cited AI outputs, RLS enforced everywhere, cloud workspace via Supabase, and Stripe-based subscriptions and usage limits as detailed in the Build Specification Pack.
+Generated code should consider the NFR Targets (Section 12) for performance, security, and scalability in its design.
