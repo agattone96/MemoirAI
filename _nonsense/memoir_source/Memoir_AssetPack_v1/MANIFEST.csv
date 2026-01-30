@@ -1,0 +1,21 @@
+new_path,original_path,filename_original,width,height,format,status,intended_use
+icons/memoir_app_icon_rounded-square_1024.png,/tmp/memoir_extract_htgku14c/memoir_app_icon_rounded-square_1024.png,memoir_app_icon_rounded-square_1024.png,1024,1024,png,approved,Primary app icon source (rounded-square)
+icons/memoir_logo_mark_transparent_1024.png,/tmp/memoir_extract_htgku14c/memoir_logo_mark_transparent_2048.png,memoir_logo_mark_transparent_2048.png,2048,2048,png,approved,Logo mark on transparent background
+icons/memoir_avatar_circle_2048.png,/tmp/memoir_extract_htgku14c/memoir_user_avatar_circle_2048.png,memoir_user_avatar_circle_2048.png,2048,2048,png,approved,Avatar/profile icon
+ui/memoir_timeline_path_2048x1365.png,/tmp/memoir_extract_htgku14c/memoir_brand_timeline_path_cards_2048x1365.png,memoir_brand_timeline_path_cards_2048x1365.png,2048,1365,png,approved,Timeline/trajectory path accent
+hero/memoir_brand_hero_M_galaxy-ui_2048x1365.png,/tmp/memoir_extract_htgku14c/memoir_brand_hero_M_galaxy-ui_2048x1365.png,memoir_brand_hero_M_galaxy-ui_2048x1365.png,2048,1365,png,approved,Hero background featuring M logo
+hero/memoir_brand_hero_icon_galaxy-ui_2048x1365.png,/tmp/memoir_extract_htgku14c/memoir_brand_hero_icon_galaxy-ui_2048x1365.png,memoir_brand_hero_icon_galaxy-ui_2048x1365.png,2048,1365,png,approved,Hero background featuring icon mark
+wordmark/memoir_wordmark_legacy_memoir-ai_gradient_875x201.png,/mnt/data/_preview_wordmark.png,_preview_wordmark.png,875,201,png,legacy,Legacy wordmark that includes 'ai'
+wordmark/memoir_wordmark_memoir_gradient_671x201.png,/mnt/data/memoir_wordmark_memoir_gradient.png,memoir_wordmark_memoir_gradient.png,671,201,png,approved,Wordmark cropped to remove 'ai'
+reference/memoir_reference_logo.png,/mnt/data/memoir.png,memoir.png,1024,1024,png,reference,Original reference logo used for style matching
+illustrations/memoir_illustration_logo_orbit_static_2048x1365.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 07_27_10 PM.png","ChatGPT Image Jan 20, 2026, 07_27_10 PM.png",2048,1365,png,candidate,Logo illustration with orbit (static)
+illustrations/memoir_illustration_logo_orbit_streak_2048x1365.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 07_35_36 PM.png","ChatGPT Image Jan 20, 2026, 07_35_36 PM.png",2048,1365,png,candidate,Logo illustration with orbit streak (dynamic)
+illustrations/memoir_illustration_logo_streak_diagonal_2048x1365.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 06_56_10 PM.png","ChatGPT Image Jan 20, 2026, 06_56_10 PM.png",2048,1365,png,candidate,Logo illustration with diagonal light streak
+illustrations/memoir_illustration_brain_orbit_2048x1365.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 07_37_24 PM.png","ChatGPT Image Jan 20, 2026, 07_37_24 PM.png",2048,1365,png,candidate,Brain illustration with orbit arc
+illustrations/memoir_illustration_brain_closeup_2048x1365.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 09_40_46 PM.png","ChatGPT Image Jan 20, 2026, 09_40_46 PM.png",2048,1365,png,candidate,Brain illustration close-up
+ui/memoir_ui_glass_panels_overlay_2048x1365.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 09_48_30 PM.png","ChatGPT Image Jan 20, 2026, 09_48_30 PM.png",2048,1365,png,candidate,Glass panel overlay UI element
+ui/memoir_ui_loading_ring_segments_1536x1024.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 09_50_08 PM.png","ChatGPT Image Jan 20, 2026, 09_50_08 PM.png",2048,1365,png,candidate,Segmented loading ring
+ui/memoir_ui_magnifier_search_1536x1024.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 09_52_52 PM.png","ChatGPT Image Jan 20, 2026, 09_52_52 PM.png",2048,1365,png,candidate,Magnifying glass search icon
+icons/memoir_app_icon_square_1024.png,"/mnt/data/ChatGPT Image Jan 20, 2026, 06_51_59 PM.png","ChatGPT Image Jan 20, 2026, 06_51_59 PM.png",2048,2048,png,candidate,Square icon render (non-rounded)
+dmg/memoir_dmg_install_background_logo_orbit_2048x1365.png,"/mnt/data/ChatGPT Image Jan 21, 2026, 01_44_25 AM.png","ChatGPT Image Jan 21, 2026, 01_44_25 AM.png",2048,1365,png,candidate,DMG background (logo + instruction text)
+dmg/memoir_dmg_install_background_dropzones_2048x1365.png,"/mnt/data/ChatGPT Image Jan 21, 2026, 02_05_29 AM.png","ChatGPT Image Jan 21, 2026, 02_05_29 AM.png",2048,1365,png,candidate,DMG background with drop zones + arrow

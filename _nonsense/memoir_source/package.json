@@ -1,0 +1,79 @@
+{
+  "name": "memoir-ai",
+  "version": "2.0.0",
+  "buildVersion": "2000",
+  "description": "Transform your digital life into a personal memoir",
+  "main": "desktop/main.cjs",
+  "author": "Memoir.ai",
+  "license": "MIT",
+  "scripts": {
+    "electron:dev": "electron .",
+    "electron:build": "electron-builder",
+    "electron:build:mac": "electron-builder --mac",
+    "electron:build:win": "electron-builder --win",
+    "electron:build:linux": "electron-builder --linux",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^26.4.0"
+  },
+  "dependencies": {
+    "electron-store": "^6.0.1"
+  },
+  "overrides": {
+    "tar": "^7.5.3"
+  },
+  "build": {
+    "appId": "com.memoir.ai",
+    "productName": "Memoir.ai",
+    "copyright": "Copyright © 2026 Memoir.ai",
+    "directories": {
+      "buildResources": "desktop/build",
+      "output": "dist-electron"
+    },
+    "files": [
+      "desktop/**/*",
+      "frontend/dist/**/*",
+      "!frontend/node_modules",
+      "!frontend/src"
+    ],
+    "extraResources": [
+      {
+        "from": "backend",
+        "to": "backend",
+        "filter": [
+          "**/*",
+          "!__pycache__",
+          "!*.pyc",
+          "!venv",
+          "!*.log"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "desktop/build/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "desktop/build/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "desktop/build/icon.png",
+      "category": "Utility"
+    }
+  }
+}

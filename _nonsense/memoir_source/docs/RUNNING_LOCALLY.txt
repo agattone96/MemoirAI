@@ -1,0 +1,23 @@
+HOW TO RUN LOCALLY
+
+1. Requirements
+   - sqlcipher (System Library)
+       macOS: brew install sqlcipher
+   - sqlcipher3 (Python Binding)
+       Included in requirements.txt
+
+2. Setup
+   pip install -r requirements.txt
+
+3. Environment Variables
+   MEMOIR_DB_KEY: The encryption key for the database.
+   Defaults to 'dev_key' if not set.
+
+4. Running the Backend
+   export MEMOIR_DB_KEY='your-secret-key' # Optional
+   python3 backend/app.py
+
+5. Verifying
+   Check the health endpoint:
+   curl http://localhost:5001/api/health/db
+   Should return: {"ok": true}

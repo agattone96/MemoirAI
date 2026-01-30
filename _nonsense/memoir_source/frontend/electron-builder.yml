@@ -1,0 +1,52 @@
+appId: "com.memoir.ai"
+productName: "Memoir.ai"
+npmRebuild: false
+directories:
+  output: "dist_electron"
+  buildResources: "build"
+
+files:
+  - "dist/**/*"
+  - from: "../desktop"
+    to: "desktop"
+    filter:
+      - "main.cjs"
+      - "preload.js"
+  - from: "../desktop/build"
+    to: "desktop"
+    filter:
+      - "icon.png"
+  - "package.json"
+
+extraFiles:
+  - from: "../desktop"
+    to: "desktop"
+    filter:
+      - "**/*"
+
+extraResources:
+  - from: "../dist/memoir"
+    to: "backend"
+    filter:
+      - "**/*"
+
+mac:
+  target: "dmg"
+  icon: "../desktop/build/icon.icns"
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: "../desktop/entitlements.mac.plist" # Will need to create this if signing
+  entitlementsInherit: "../desktop/entitlements.mac.plist"
+
+win:
+  target: "nsis"
+  icon: "../desktop/build/icons/icon.ico"
+
+dmg:
+  contents:
+    - x: 130
+      y: 220
+    - x: 410
+      y: 220
+      type: "link"
+      path: "/Applications"

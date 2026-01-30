@@ -1,0 +1,11 @@
+flask
+flask-cors
+
+chromadb
+sentence-transformers
+beautifulsoup4
+sqlalchemy
+pydantic<2.0.0
+gunicorn
+uvicorn
+openai
