@@ -1264,14 +1264,16 @@ export default function MemoirApp() {
   );
 
   return (
-    <div className="memoir-bg min-h-screen">
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar
-          active={active}
-          onNavigate={setActive}
-          collapsed={sidebarCollapsed}
-          onToggleCollapsed={() => setSidebarCollapsed((s) => !s)}
-        />
+    <div className="memoir-bg min-h-[100dvh]">
+      <div className="mx-auto flex min-h-[100dvh] w-full max-w-[1600px] overflow-hidden md:gap-0">
+        <div className="hidden md:block">
+          <Sidebar
+            active={active}
+            onNavigate={setActive}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={() => setSidebarCollapsed((s) => !s)}
+          />
+        </div>
 
         <div className="flex min-w-0 flex-1 flex-col">
           <TopBar
@@ -1333,15 +1335,148 @@ export default function MemoirApp() {
               ) : null}
             </AnimatePresence>
           </div>
+
+          <MobileNav
+            active={active}
+            onNavigate={setActive}
+            onToggleInspector={() => setInspectorOpen((s) => !s)}
+            inspectorOpen={inspectorOpen}
+          />
         </div>
 
-        <Inspector
-          open={inspectorOpen}
-          onToggle={() => setInspectorOpen((s) => !s)}
-          memory={selected}
-        />
+        <div className="hidden xl:block">
+          <Inspector
+            open={inspectorOpen}
+            onToggle={() => setInspectorOpen((s) => !s)}
+            memory={selected}
+          />
+        </div>
+      </div>
+
+      <MobileInspector
+        open={inspectorOpen}
+        onClose={() => setInspectorOpen(false)}
+        memory={selected}
+      />
+    </div>
+  );
+}
+
+function MobileNav({
+  active,
+  onNavigate,
+  onToggleInspector,
+  inspectorOpen,
+}: {
+  active: NavKey;
+  onNavigate: (k: NavKey) => void;
+  onToggleInspector: () => void;
+  inspectorOpen: boolean;
+}) {
+  const items: { key: NavKey; label: string; icon: any }[] = [
+    { key: "dashboard", label: "Home", icon: Home },
+    { key: "timeline", label: "Timeline", icon: Archive },
+    { key: "search", label: "Search", icon: Search },
+    { key: "imports", label: "Import", icon: FileUp },
+    { key: "settings", label: "Settings", icon: Settings },
+  ];
+
+  return (
+    <div className="sticky bottom-0 z-30 border-t border-white/10 bg-[rgba(10,10,18,0.70)] backdrop-blur-xl md:hidden">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between px-3 py-2">
+        {items.map((it) => {
+          const Icon = it.icon;
+          const isActive = active === it.key;
+          return (
+            <button
+              key={it.key}
+              type="button"
+              data-testid={`nav-mobile-${it.key}`}
+              onClick={() => onNavigate(it.key)}
+              className={cn(
+                "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-2 py-2 text-[11px] font-medium transition",
+                isActive ? "text-white/90" : "text-white/55 hover:text-white/80",
+              )}
+            >
+              <Icon className={cn("h-5 w-5", isActive ? "text-white/90" : "text-white/55")} strokeWidth={1.75} />
+              <span className="truncate">{it.label}</span>
+            </button>
+          );
+        })}
+
+        <button
+          type="button"
+          data-testid="button-mobile-inspector"
+          onClick={onToggleInspector}
+          className={cn(
+            "ml-1 grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-white/80",
+            inspectorOpen ? "memoir-ring" : "hover:bg-white/[0.06]",
+          )}
+        >
+          {inspectorOpen ? (
+            <PanelRightClose className="h-5 w-5" strokeWidth={1.75} />
+          ) : (
+            <PanelRightOpen className="h-5 w-5" strokeWidth={1.75} />
+          )}
+        </button>
       </div>
     </div>
+  );
+}
+
+function MobileInspector({
+  open,
+  onClose,
+  memory,
+}: {
+  open: boolean;
+  onClose: () => void;
+  memory?: Memory;
+}) {
+  return (
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          key="mobile-inspector"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.16, ease: "easeOut" }}
+          className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm xl:hidden"
+        >
+          <motion.div
+            initial={{ y: 18, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 18, opacity: 0 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="absolute bottom-0 left-0 right-0 max-h-[86dvh] overflow-hidden rounded-t-3xl border border-white/10 bg-[rgba(13,14,22,0.86)] shadow-[var(--shadow-xl)]"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <div className="min-w-0">
+                <div data-testid="text-mobile-inspector-title" className="text-[13px] font-semibold text-white/85">
+                  Inspector
+                </div>
+                <div className="mt-0.5 truncate text-[12px] text-white/45">
+                  {memory ? memory.title : "Nothing selected"}
+                </div>
+              </div>
+              <button
+                type="button"
+                data-testid="button-mobile-inspector-close"
+                onClick={onClose}
+                className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-white/85"
+              >
+                <PanelRightClose className="h-5 w-5" strokeWidth={1.75} />
+              </button>
+            </div>
+
+            <div className="max-h-[calc(86dvh-56px)] overflow-y-auto">
+              <Inspector open={true} onToggle={onClose} memory={memory} />
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }
 
