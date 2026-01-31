@@ -1,24 +1,71 @@
-# Logs
-logs
-*.log
+# Node.js
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+.pnpm-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Build and Dist
+dist/
+dist-electron/
+build/
+server/public/
+.replit
+.local/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Environment and Secrets
+.env
+.env.*
+!.env.example
+
+# IDE and OS
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Project Specific (Aggressive)
+_nonsense/
+attached_assets/
+app/
+frontend-dev.log
+*.log
+*.tar.gz
+vite.config.ts.*
+
+# Databases
+*.sqlite
+*.db
+*.db-shm
+*.db-wal
+
+# Documents and Media
+*.pdf
+*.docx
+*.doc
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+*.zip
+*.7z
+*.rar
+
+# Binaries
+*.bin
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
