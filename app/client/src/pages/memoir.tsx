@@ -244,7 +244,7 @@ function MemoryCard({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             {memory.pinned ? (
-              <Star className="h-4 w-4 text-[hsl(var(--primary))]" strokeWidth={1.75} />
+              <Star className="h-4 w-4 text-[hsl(var(--accent))]" strokeWidth={1.75} />
             ) : (
               <Bookmark
                 className="h-4 w-4 text-white/40 group-hover:text-white/55"
@@ -533,7 +533,7 @@ function TopBar({
         <Button
           data-testid="button-new"
           onClick={onNew}
-          className="h-11 rounded-xl bg-[hsl(var(--primary))] text-white shadow-[var(--shadow-sm)] hover:bg-[hsl(19_100%_62%)]"
+          className="h-11 rounded-xl bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] font-semibold shadow-[var(--shadow-sm)] hover:opacity-90"
         >
           New
         </Button>
@@ -930,11 +930,17 @@ function DashboardContent({
     <div className="mx-auto max-w-[1200px] px-6 py-6">
       <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-[var(--shadow-md)] memoir-noise">
         {/* Cinematic Hero Background */}
-        <div className="pointer-events-none absolute inset-0 z-0">
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
           <img
             src="/attached_assets/hero-cinematic.jpg"
             className="h-full w-full object-cover opacity-25 blur-[2px]"
             alt="Hero Background"
+          />
+          {/* Orbit Illustration Overlay */}
+          <img
+            src="/attached_assets/hero-orbit.png"
+            className="absolute right-[-10%] top-[-20%] h-[140%] w-auto object-contain opacity-40 mix-blend-screen"
+            alt="Orbit Illustration"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a12]/80 via-transparent to-[#0a0a12]/90" />
         </div>
