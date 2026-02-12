@@ -59,3 +59,33 @@ This project is built with:
 ## How can I deploy this project?
 
 Simply open [OnSpace]() and click on Share -> Publish.
+
+## Account provisioning and roles
+
+Memoir.AI now uses role-based access controls with three roles:
+
+- `member`
+- `tenant_admin`
+- `super_admin`
+
+Every account should be created with:
+
+- `tenant_slug` metadata
+- `role` metadata
+- optional `must_reset_password` metadata for temporary credentials
+
+Use the provisioning script (requires Supabase service role key):
+
+```sh
+SUPABASE_URL=<your-supabase-url> \
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key> \
+npm run provision:user -- \
+  --email allisongattone@gmail.com \
+  --password 123ChangeThis \
+  --username "Allison Gattone" \
+  --tenant memoir-ai \
+  --role super_admin \
+  --force-reset true
+```
+
+The app enforces first-login password change when `must_reset_password=true`.
