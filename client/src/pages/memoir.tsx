@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity,
@@ -37,6 +37,15 @@ import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  type ArchiveMemory,
+  type RelationshipProfile,
+  buildRelationshipProfiles,
+  generateChapterDraft,
+  parseMessengerJson,
+  summarizeMonth,
+} from "@/lib/memoirArchive";
 
 type NavKey =
   | "dashboard"
@@ -146,6 +155,56 @@ const MOCK_MEMORIES: Memory[] = [
     people: ["Mira"],
   },
 ];
+
+type ImportJob = {
+  id: string;
+  filename: string;
+  status: "processing" | "completed" | "failed";
+  message: string;
+};
+
+const ARCHIVE_STORAGE_KEY = "memoir.archive.memories.v2";
+
+function monthLabel(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+function toCardMemory(memory: ArchiveMemory, index: number): Memory {
+  const time = new Date(memory.timestamp);
+  const titleSeed = memory.content.split(/[.!?]/).find(Boolean)?.trim() || memory.content;
+  const source: Memory["source"] =
+    memory.content.includes("[photo") || memory.content.includes("[video")
+      ? "Photos"
+      : "Messages";
+  return {
+    id: memory.id,
+    title: titleSeed.slice(0, 72),
+    dateLabel: time.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    timeLabel: time.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+    snippet: memory.content,
+    source,
+    tags: [
+      { id: `tag-${index}-tone`, name: memory.sentiment >= 0 ? "Warm" : "Reflective", color: memory.sentiment >= 0 ? "g" : "v" },
+      { id: `tag-${index}-src`, name: "Messenger", color: "c" },
+    ],
+    people: memory.participants.filter((p) => p.toLowerCase() !== "you").slice(0, 3),
+  };
+}
+
+function seedArchiveFromMock(): ArchiveMemory[] {
+  return MOCK_MEMORIES.map((m, i) => {
+    const ts = new Date(2026, 0, 28 - i, 12, i * 7).toISOString();
+    return {
+      id: `seed-${m.id}`,
+      timestamp: ts,
+      sender: m.people[0] || "You",
+      participants: ["You", ...(m.people || [])],
+      content: m.snippet,
+      sentiment: m.source === "Snapshot" ? 0.1 : 0.25,
+      source: "Messenger",
+    };
+  });
+}
 
 function Chip({
   label,
@@ -356,7 +415,7 @@ function Sidebar({
                   data-testid="text-app-name"
                   className="text-[14px] font-semibold text-white/90"
                 >
-                  Memoir.ai
+                  Memoir.AI
                 </div>
                 <div
                   data-testid="text-library-name"
@@ -533,7 +592,7 @@ function TopBar({
         <Button
           data-testid="button-new"
           onClick={onNew}
-          className="h-11 rounded-xl bg-[hsl(var(--primary))] text-white shadow-[var(--shadow-sm)] hover:bg-[hsl(19_100%_62%)]"
+          className="h-11 rounded-xl bg-[hsl(var(--primary))] text-white shadow-[var(--shadow-sm)] hover:bg-[hsl(320_100%_64%)]"
         >
           New
         </Button>
@@ -953,14 +1012,14 @@ function DashboardContent({
               data-testid="text-dashboard-subtitle"
               className="mt-3 text-[14px] leading-relaxed text-white/60"
             >
-              Memoir.ai turns scattered exports into a coherent timeline—so you can revisit moments, see patterns, and generate citations you can trust.
+              Memoir.AI turns scattered exports into a coherent timeline—so you can revisit moments, see patterns, and generate citations you can trust.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
             <Button
               data-testid="button-add-memory"
-              className="h-11 rounded-xl bg-[hsl(var(--primary))] text-white shadow-[var(--shadow-sm)] hover:bg-[hsl(19_100%_62%)]"
+              className="h-11 rounded-xl bg-[hsl(var(--primary))] text-white shadow-[var(--shadow-sm)] hover:bg-[hsl(320_100%_64%)]"
             >
               <Sparkles className="mr-2 h-4 w-4" strokeWidth={1.75} />
               Add memory
@@ -1105,8 +1164,9 @@ function TimelineContent({
   const groups = useMemo(() => {
     const byDate = new Map<string, Memory[]>();
     for (const m of memories) {
-      if (!byDate.has(m.dateLabel)) byDate.set(m.dateLabel, []);
-      byDate.get(m.dateLabel)!.push(m);
+      const key = monthLabel(new Date(m.dateLabel));
+      if (!byDate.has(key)) byDate.set(key, []);
+      byDate.get(key)!.push(m);
     }
     return Array.from(byDate.entries());
   }, [memories]);
@@ -1125,7 +1185,7 @@ function TimelineContent({
             data-testid="text-timeline-title"
             className="mt-2 text-[22px] font-semibold text-white/92"
           >
-            Chronological stream
+            Eras and Moments spine
           </h2>
         </div>
 
@@ -1140,7 +1200,7 @@ function TimelineContent({
           </Button>
           <Button
             data-testid="button-jump-today"
-            className="h-10 rounded-xl bg-[hsl(var(--primary))] text-white hover:bg-[hsl(19_100%_62%)]"
+            className="h-10 rounded-xl bg-[hsl(var(--primary))] text-white hover:bg-[hsl(320_100%_64%)]"
           >
             Jump
           </Button>
@@ -1176,6 +1236,167 @@ function TimelineContent({
             </div>
           </div>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+function ImportsContent({
+  jobs,
+  onImportClick,
+}: {
+  jobs: ImportJob[];
+  onImportClick: () => void;
+}) {
+  return (
+    <div className="mx-auto max-w-[1200px] px-6 py-6">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-[var(--shadow-md)] memoir-noise">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-medium tracking-[0.20em] text-white/45">INGESTION PIPELINE</div>
+            <h2 className="mt-2 text-[22px] font-semibold text-white/92">Facebook Messenger JSON Import</h2>
+            <p className="mt-2 text-sm text-white/60">
+              Upload exported `message_*.json` files. We parse moments, participant context, and tone signals.
+            </p>
+          </div>
+          <Button
+            data-testid="button-import-messenger"
+            onClick={onImportClick}
+            className="h-11 rounded-xl bg-[hsl(var(--primary))] text-white"
+          >
+            <FileUp className="mr-2 h-4 w-4" />
+            Import Messenger JSON
+          </Button>
+        </div>
+
+        <Separator className="my-6 bg-white/10" />
+
+        <div className="space-y-3">
+          <div className="text-[12px] font-semibold text-white/80">Import Jobs</div>
+          {jobs.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-white/55">
+              No imports yet.
+            </div>
+          ) : (
+            jobs.map((job) => (
+              <div key={job.id} className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-sm font-medium text-white/85">{job.filename}</div>
+                  <Badge className="rounded-full bg-white/[0.06] text-white/80">{job.status}</Badge>
+                </div>
+                <div className="mt-2 text-xs text-white/60">{job.message}</div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PeopleContent({ profiles }: { profiles: RelationshipProfile[] }) {
+  return (
+    <div className="mx-auto max-w-[1200px] px-6 py-6">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-[var(--shadow-md)] memoir-noise">
+        <div className="text-[11px] font-medium tracking-[0.20em] text-white/45">RELATIONSHIP INTELLIGENCE</div>
+        <h2 className="mt-2 text-[22px] font-semibold text-white/92">Tone shifts, interaction frequency, story arcs</h2>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {profiles.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-white/60">
+              No contact profiles yet. Import Messenger data to generate them.
+            </div>
+          ) : (
+            profiles.map((p) => (
+              <Card key={p.name} className="rounded-2xl border-white/10 bg-white/[0.02] p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-[15px] font-semibold text-white/90">{p.name}</div>
+                  <Badge className="rounded-full bg-white/[0.06] text-white/80">{p.toneShift}</Badge>
+                </div>
+                <div className="mt-3 space-y-1.5 text-xs text-white/65">
+                  <div>Interactions: {p.interactions}</div>
+                  <div>Avg sentiment: {p.avgSentiment}</div>
+                  <div>Meeting: {new Date(p.storyArc.meeting).toLocaleDateString()}</div>
+                  <div>Peak: {new Date(p.storyArc.peak).toLocaleDateString()}</div>
+                  <div>Fade: {new Date(p.storyArc.fade).toLocaleDateString()}</div>
+                </div>
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StudioContent({
+  months,
+  aiResult,
+  onSummarize,
+  onDraft,
+}: {
+  months: string[];
+  aiResult: string;
+  onSummarize: () => void;
+  onDraft: () => void;
+}) {
+  return (
+    <div className="mx-auto max-w-[1200px] px-6 py-6">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-[var(--shadow-md)] memoir-noise">
+        <div className="text-[11px] font-medium tracking-[0.20em] text-white/45">INVISIBLE AI LAYER</div>
+        <h2 className="mt-2 text-[22px] font-semibold text-white/92">No chatbot. Trigger narrative actions directly.</h2>
+        <p className="mt-2 text-sm text-white/60">
+          Available months: {months.join(", ") || "none"}.
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button data-testid="button-ai-month-summary" onClick={onSummarize} className="rounded-xl bg-[hsl(var(--primary))] text-white">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Summarize Month
+          </Button>
+          <Button data-testid="button-ai-chapter-draft" onClick={onDraft} variant="secondary" className="rounded-xl border-white/10 bg-white/[0.04] text-white/85">
+            <Command className="mr-2 h-4 w-4" />
+            Generate Chapter Draft
+          </Button>
+        </div>
+
+        <pre className="mt-4 whitespace-pre-wrap rounded-2xl border border-white/10 bg-black/25 p-4 text-xs text-white/75">
+          {aiResult || "Run an action to generate output."}
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+function SecurityContent({
+  role,
+  permissions,
+}: {
+  role: string;
+  permissions: string[];
+}) {
+  return (
+    <div className="mx-auto max-w-[1200px] px-6 py-6">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-[var(--shadow-md)] memoir-noise">
+        <div className="text-[11px] font-medium tracking-[0.20em] text-white/45">ACCESS CONTROL</div>
+        <h2 className="mt-2 text-[22px] font-semibold text-white/92">Role-based controls and first-login security</h2>
+        <p className="mt-2 text-sm text-white/60">
+          Active role: <span className="text-white/85">{role}</span>
+        </p>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          {permissions.map((p) => (
+            <Badge key={p} className="rounded-full bg-white/[0.06] text-white/80">
+              {p}
+            </Badge>
+          ))}
+        </div>
+
+        {role === "super_admin" && (
+          <div className="mt-6 rounded-2xl border border-fuchsia-400/30 bg-fuchsia-400/10 p-4 text-sm text-fuchsia-100">
+            Super-admin capabilities enabled: platform governance, tenant oversight, user role management, forced password reset controls, and incident response actions.
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1229,7 +1450,7 @@ function PlaceholderContent({
           <div className="mt-6">
             <Button
               data-testid={primaryAction.testId}
-              className="h-11 rounded-xl bg-[hsl(var(--primary))] text-white hover:bg-[hsl(19_100%_62%)]"
+              className="h-11 rounded-xl bg-[hsl(var(--primary))] text-white hover:bg-[hsl(320_100%_64%)]"
             >
               {primaryAction.label}
             </Button>
@@ -1241,27 +1462,94 @@ function PlaceholderContent({
 }
 
 export default function MemoirApp() {
+  const { user } = useAuth();
   const [active, setActive] = useState<NavKey>("dashboard");
   const [query, setQuery] = useState("");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [inspectorOpen, setInspectorOpen] = useState(true);
-  const [selectedId, setSelectedId] = useState<string | undefined>(MOCK_MEMORIES[2]?.id);
+  const [archiveMemories, setArchiveMemories] = useState<ArchiveMemory[]>([]);
+  const [selectedId, setSelectedId] = useState<string | undefined>();
+  const [importJobs, setImportJobs] = useState<ImportJob[]>([]);
+  const [aiResult, setAiResult] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(ARCHIVE_STORAGE_KEY);
+      if (!raw) {
+        const seeded = seedArchiveFromMock();
+        setArchiveMemories(seeded);
+        setSelectedId(toCardMemory(seeded[0], 0).id);
+        return;
+      }
+      const parsed = JSON.parse(raw) as ArchiveMemory[];
+      setArchiveMemories(parsed);
+      setSelectedId(parsed[0]?.id);
+    } catch {
+      const seeded = seedArchiveFromMock();
+      setArchiveMemories(seeded);
+      setSelectedId(seeded[0]?.id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!archiveMemories.length) return;
+    localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(archiveMemories));
+  }, [archiveMemories]);
+
+  const visualMemories = useMemo(
+    () => archiveMemories.map((m, i) => toCardMemory(m, i)),
+    [archiveMemories],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return MOCK_MEMORIES;
-    return MOCK_MEMORIES.filter((m) => {
+    if (!q) return visualMemories;
+    return visualMemories.filter((m) => {
       const hay = [m.title, m.snippet, m.dateLabel, m.source, m.people.join(" "), m.tags.map((t) => t.name).join(" ")]
         .join(" ")
         .toLowerCase();
       return hay.includes(q);
     });
-  }, [query]);
+  }, [query, visualMemories]);
 
   const selected = useMemo(
-    () => MOCK_MEMORIES.find((m) => m.id === selectedId),
-    [selectedId],
+    () => visualMemories.find((m) => m.id === selectedId),
+    [selectedId, visualMemories],
   );
+
+  const profiles = useMemo(() => buildRelationshipProfiles(archiveMemories), [archiveMemories]);
+  const months = useMemo(() => {
+    const set = new Set(
+      archiveMemories.map((m) => {
+        const d = new Date(m.timestamp);
+        return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+      }),
+    );
+    return Array.from(set).sort((a, b) => (a < b ? 1 : -1));
+  }, [archiveMemories]);
+
+  const importFromFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    for (const file of Array.from(files)) {
+      const id = `job-${Date.now()}-${file.name}`;
+      setImportJobs((cur) => [{ id, filename: file.name, status: "processing", message: "Parsing Messenger JSON..." }, ...cur]);
+      try {
+        const text = await file.text();
+        const json = JSON.parse(text);
+        const parsed = parseMessengerJson(json);
+        setArchiveMemories((cur) => [...parsed, ...cur].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+        setImportJobs((cur) =>
+          cur.map((job) => (job.id === id ? { ...job, status: "completed", message: `Imported ${parsed.length} moments.` } : job)),
+        );
+        if (parsed[0]) setSelectedId(parsed[0].id);
+      } catch (error) {
+        setImportJobs((cur) =>
+          cur.map((job) => (job.id === id ? { ...job, status: "failed", message: error instanceof Error ? error.message : "Import failed" } : job)),
+        );
+      }
+    }
+  };
 
   return (
     <div className="memoir-bg min-h-[100dvh]">
@@ -1279,8 +1567,17 @@ export default function MemoirApp() {
           <TopBar
             query={query}
             setQuery={setQuery}
-            onNew={() => setSelectedId(MOCK_MEMORIES[0]?.id)}
+            onNew={() => setSelectedId(visualMemories[0]?.id)}
             onCommand={() => setActive("search")}
+          />
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            multiple
+            className="hidden"
+            onChange={(e) => void importFromFiles(e.target.files)}
           />
 
           <div className="min-h-0 flex-1 overflow-y-auto">
@@ -1325,12 +1622,30 @@ export default function MemoirApp() {
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.18, ease: "easeOut" }}
                 >
-                  <PlaceholderContent
-                    title={NAV.find((n) => n.key === active)?.label ?? "Screen"}
-                    subtitle="This is a mockup surface. Next we’ll flesh out the real interactions and layouts for this module."
-                    icon={<OrbitIcon />}
-                    primaryAction={{ label: "Design this screen", testId: "button-design-screen" }}
-                  />
+                  {active === "imports" ? (
+                    <ImportsContent jobs={importJobs} onImportClick={() => fileInputRef.current?.click()} />
+                  ) : active === "people" ? (
+                    <PeopleContent profiles={profiles} />
+                  ) : active === "studio" ? (
+                    <StudioContent
+                      months={months}
+                      aiResult={aiResult}
+                      onSummarize={() => setAiResult(summarizeMonth(archiveMemories, months[0] ?? ""))}
+                      onDraft={() => setAiResult(generateChapterDraft(archiveMemories, "Chapter Draft"))}
+                    />
+                  ) : active === "security" ? (
+                    <SecurityContent
+                      role={user?.role ?? "member"}
+                      permissions={user?.permissions ?? []}
+                    />
+                  ) : (
+                    <PlaceholderContent
+                      title={NAV.find((n) => n.key === active)?.label ?? "Screen"}
+                      subtitle="This module remains in design mode."
+                      icon={<OrbitIcon />}
+                      primaryAction={{ label: "Design this screen", testId: "button-design-screen" }}
+                    />
+                  )}
                 </motion.div>
               ) : null}
             </AnimatePresence>

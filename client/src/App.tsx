@@ -88,9 +88,9 @@ function AuthPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img src="/favicon.png" alt="Memoir.ai Icon" className="w-16 h-16 rounded-2xl" />
+            <img src="/favicon.png" alt="Memoir.AI Icon" className="w-16 h-16 rounded-2xl" />
             <span className="text-3xl font-bold bg-[linear-gradient(90deg,#35D3FF_0%,#7C4DFF_50%,#FF3DBD_100%)] bg-clip-text text-transparent">
-              Memoir.ai
+              Memoir.AI
             </span>
           </div>
           <p className="text-white/60">

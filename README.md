@@ -1,80 +1,54 @@
-# Welcome to your OnSpace project
+# Memoir.AI
 
-## How can I edit this code?
+Private AI memory archive with a luxury editorial interface. The app ingests Facebook Messenger JSON exports, builds a timeline of eras and moments, computes relationship intelligence, and provides invisible AI actions (no chatbot surface) for month summaries and chapter drafts.
 
-There are several ways of editing your application.
+## Stack
 
-**Use OnSpace**
+- React + TypeScript + Vite (client under `client/`)
+- Express + TS server (`server/`)
+- Tailwind + shadcn/ui
+- Supabase auth (multi-tenant metadata + RBAC)
 
-Simply visit the [OnSpace Project]() and start prompting.
+## Core features implemented
 
-Changes made via OnSpace will be committed automatically to this repo.
+- Messenger ingestion pipeline:
+  - Import `message_*.json` files in **Imports**
+  - Parser normalizes UTF text, attachments, timestamp, sender, sentiment
+- Vertical timeline spine:
+  - **Timeline** groups moments into month-level eras
+- Relationship intelligence:
+  - **People** computes interaction counts, tone shifts, and story arcs (meeting/peak/fade)
+- Invisible AI layer:
+  - **Studio** has direct actions for month summaries and chapter drafts
+- Secure multi-tenant auth + RBAC:
+  - Roles: `member`, `tenant_admin`, `super_admin`
+  - Permissions resolved in `client/src/lib/rbac.ts`
+  - Forced first-login password reset via `must_reset_password`
+- Premium dark luxury UI:
+  - Glass surfaces, soft glow, restrained electric blue/magenta accents
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in OnSpace.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Local setup
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+npm ci
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- App: `http://localhost:5000`
 
-**Use GitHub Codespaces**
+## Quality checks
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```sh
+npm run test
+npm run check
+npm run build
+```
 
-## What technologies are used for this project?
+## Super-admin provisioning
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [OnSpace]() and click on Share -> Publish.
-
-## Account provisioning and roles
-
-Memoir.AI now uses role-based access controls with three roles:
-
-- `member`
-- `tenant_admin`
-- `super_admin`
-
-Every account should be created with:
-
-- `tenant_slug` metadata
-- `role` metadata
-- optional `must_reset_password` metadata for temporary credentials
-
-Use the provisioning script (requires Supabase service role key):
+Use the admin provisioning script (requires Supabase service role key):
 
 ```sh
 SUPABASE_URL=<your-supabase-url> \
@@ -88,4 +62,26 @@ npm run provision:user -- \
   --force-reset true
 ```
 
-The app enforces first-login password change when `must_reset_password=true`.
+This creates a super-admin account with temporary credentials and forces password reset at first login.
+
+## Deployment (main branch auto-live)
+
+### Vercel
+
+- Framework preset: `Vite`
+- Build command: `npx vite build --config vite.config.ts`
+- Output directory: `dist/public`
+- Install command: `npm ci`
+- Production branch: `main`
+- Env vars:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+
+### Netlify
+
+- Build command: `npx vite build --config vite.config.ts`
+- Publish directory: `dist/public`
+- Production branch: `main`
+- Env vars:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
